@@ -8,7 +8,13 @@ import { cookies } from 'next/headers'
  * @returns {NextResponse} The response with success or error.
  */
 export async function POST(request: NextRequest) {
-  const supabaseAuth = createRouteHandlerClient({ cookies })
+  const supabaseAuth = createRouteHandlerClient(
+    { cookies },
+    {
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    }
+  )
   const { data: { session } } = await supabaseAuth.auth.getSession()
 
   if (!session) {

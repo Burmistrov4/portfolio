@@ -8,7 +8,13 @@ import { cookies } from 'next/headers'
  * @returns {NextResponse} The response with redirect.
  */
 export async function POST(request: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies })
+  const supabase = createRouteHandlerClient(
+    { cookies },
+    {
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    }
+  )
 
   try {
     const { error } = await supabase.auth.signOut()

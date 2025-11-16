@@ -10,7 +10,13 @@ import { AdminNav } from '@/components/admin-nav'
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   console.log('ProtectedLayout: Checking session...')
-  const supabase = createServerComponentClient({ cookies })
+  const supabase = createServerComponentClient(
+    { cookies },
+    {
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    }
+  )
 
   const { data: { session } } = await supabase.auth.getSession()
   console.log('ProtectedLayout: Session found:', !!session)
