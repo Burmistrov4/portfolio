@@ -19,21 +19,30 @@ interface Certificate {
 export function CertificatesSection() {
   const [certificates, setCertificates] = useState<Certificate[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchCertificates = async () => {
-      const { data, error } = await supabase
-        .from('certificates')
-        .select('*')
-        .eq('is_published', true)
-        .order('created_at', { ascending: false })
+      try {
+        const { data, error } = await supabase
+          .from('certificates')
+          .select('*')
+          .eq('is_published', true)
+          .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('Error fetching certificates:', error)
-      } else {
-        setCertificates(data || [])
+        if (error) {
+          console.error('Error fetching certificates:', error)
+          setError('Error al cargar los certificados. Por favor, intenta de nuevo más tarde.')
+        } else {
+          setCertificates(data || [])
+          setError(null)
+        }
+      } catch (err) {
+        console.error('Unexpected error fetching certificates:', err)
+        setError('Error de conexión. Verifica tu conexión a internet.')
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     fetchCertificates()
@@ -48,6 +57,21 @@ export function CertificatesSection() {
           </h2>
           <div className="text-center py-12">
             <p className="text-slate-600 dark:text-slate-400 text-lg">Cargando certificados...</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section className="py-16 px-4 sm:px-8">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12 text-slate-900 dark:text-white">
+            Mis Certificados
+          </h2>
+          <div className="text-center py-12">
+            <p className="text-red-600 dark:text-red-400 text-lg">{error}</p>
           </div>
         </div>
       </section>

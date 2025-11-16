@@ -30,7 +30,7 @@ export function CertificateCard({ certificate }: { certificate: Certificate }) {
           {certificate.description}
         </CardDescription>
 
-        {certificate.technologies && certificate.technologies.length > 0 && (
+        {certificate.technologies?.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {certificate.technologies.map((tech) => (
               <Badge key={tech} variant="secondary" className="text-xs">

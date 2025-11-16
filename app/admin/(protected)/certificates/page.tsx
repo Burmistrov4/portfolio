@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,6 +24,7 @@ export default function CertificateUploadPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [formErrors, setFormErrors] = useState({ title: "", file: "" })
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -70,8 +71,12 @@ export default function CertificateUploadPage() {
     }
     if (!formData.file) {
       errors.file = "Debe seleccionar un archivo PDF"
-    } else if (formData.file.type !== "application/pdf") {
-      errors.file = "El archivo debe ser un PDF"
+    } else {
+      if (formData.file.type !== "application/pdf") {
+        errors.file = "El archivo debe ser un PDF"
+      } else if (formData.file.size > 10 * 1024 * 1024) { // 10MB limit
+        errors.file = "El archivo no debe superar los 10MB"
+      }
     }
     setFormErrors(errors)
     return !errors.title && !errors.file
@@ -87,9 +92,18 @@ export default function CertificateUploadPage() {
         body: JSON.stringify({ title: formData.title, notes: "" })
       })
       const data = await response.json()
-      setFormData((prev) => ({ ...prev, description: data.summary || data.detailedDescription || "" }))
+
+      if (response.ok && data) {
+        // Priorizar detailedDescription sobre summary para certificados
+        const description = data.detailedDescription || data.summary || ""
+        setFormData((prev) => ({ ...prev, description }))
+      } else {
+        console.error('Error in AI response:', data)
+        alert('Error al generar la descripción con IA')
+      }
     } catch (error) {
       console.error('Error generating description:', error)
+      alert('Error de conexión al generar descripción con IA')
     } finally {
       setIsGenerating(false)
     }
@@ -139,6 +153,10 @@ export default function CertificateUploadPage() {
           file: null,
         })
         setTechInput("")
+        // Clear file input manually since HTML file inputs can't be reset programmatically
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""
+        }
       } else {
         alert('Error al guardar: ' + saveResult.error)
       }
@@ -258,6 +276,7 @@ export default function CertificateUploadPage() {
                 Archivo PDF del Certificado
               </label>
               <Input
+                ref={fileInputRef}
                 type="file"
                 accept=".pdf"
                 onChange={handleFileChange}
