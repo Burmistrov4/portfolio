@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
           description,
           technologies,
           cert_url: certUrl,
+          is_published: true,
         },
       ])
       .select()

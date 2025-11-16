@@ -1,6 +1,7 @@
 import supabase from '@/lib/supabase'
 import { HeroSection } from '@/components/hero-section'
 import { ProjectsSection } from '@/components/projects-section'
+import { CertificatesSection } from '@/components/certificates-section'
 
 /**
  * @description Renders the home page with hero section and portfolio projects.
@@ -27,6 +28,7 @@ export default async function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <HeroSection profile={profileData} />
       <ProjectsSection projects={projects || []} />
+      <CertificatesSection />
     </div>
   )
 }
