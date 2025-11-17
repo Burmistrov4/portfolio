@@ -31,6 +31,7 @@ export const metadata: Metadata = {
  * @param {Readonly<{children: React.ReactNode}>} props The props containing children.
  * @returns {JSX.Element} The layout.
  */
+// Updated with cyberpunk theme and particles background
 export default function RootLayout({
   children,
 }: Readonly<{
