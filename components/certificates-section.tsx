@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { CertificateCard } from '@/components/certificate-card'
-import supabase from '@/lib/supabase'
+import supabase from '@/lib/supabase-client'
 
 interface Certificate {
   id: string
