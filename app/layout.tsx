@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { ThemeProvider } from '@/components/theme-provider'
+import { ParticlesBackground } from '@/components/particles-background'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -37,7 +38,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
+      <body className={`font-sans antialiased relative overflow-x-hidden`}>
+        <ParticlesBackground />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

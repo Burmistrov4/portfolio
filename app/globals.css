@@ -41,38 +41,39 @@
 }
 
 .dark {
-  --background: oklch(0.125 0 0);
+  /* Cyberpunk/Tech color palette */
+  --background: #000000;
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
+  --card: #0f0f0f;
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
+  --popover: #0f0f0f;
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.58 0.18 263.1);
-  --primary-foreground: oklch(0.125 0 0);
-  --secondary: oklch(0.269 0.02 263.1);
+  --primary: #00FFFF;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
+  --muted: #1a1a1a;
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.58 0.18 263.1);
-  --accent-foreground: oklch(0.125 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.2 0 0);
-  --ring: oklch(0.58 0.18 263.1);
-  --chart-1: oklch(0.58 0.18 263.1);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.145 0 0);
+  --accent: #00FFFF;
+  --accent-foreground: #000000;
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: #333333;
+  --input: #1a1a1a;
+  --ring: #00FFFF;
+  --chart-1: #00FFFF;
+  --chart-2: #6700FF;
+  --chart-3: #FF0080;
+  --chart-4: #00FF80;
+  --chart-5: #FFFF00;
+  --sidebar: #0f0f0f;
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.58 0.18 263.1);
-  --sidebar-primary-foreground: oklch(0.125 0 0);
-  --sidebar-accent: oklch(0.269 0.02 263.1);
+  --sidebar-primary: #00FFFF;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #1a1a1a;
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.58 0.18 263.1);
+  --sidebar-border: #333333;
+  --sidebar-ring: #00FFFF;
 }
 
 @theme inline {
@@ -122,5 +123,21 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 3s ease infinite;
+  }
+
+  @keyframes gradient-x {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
   }
 }

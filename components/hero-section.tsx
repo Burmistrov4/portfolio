@@ -47,21 +47,33 @@ export function HeroSection({ profile }: HeroSectionProps) {
         <div className="flex flex-col lg:flex-row items-center gap-12">
           {/* Profile Image */}
           <div className="flex-shrink-0">
-            {profile.profile_image_url ? (
-              <Image
-                src={profile.profile_image_url}
-                alt={profile.full_name}
-                width={192}
-                height={192}
-                className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-xl"
-              />
-            ) : (
-              <div className="w-48 h-48 rounded-full bg-white/20 flex items-center justify-center border-4 border-white shadow-xl">
-                <span className="text-6xl font-bold">
-                  {profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                </span>
-              </div>
-            )}
+            <motion.div
+              className="relative p-1 rounded-full bg-gradient-to-r from-cyan-400 via-purple-500 to-cyan-400 bg-size-200 animate-gradient-x"
+              animate={{
+                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            >
+              {profile.profile_image_url ? (
+                <Image
+                  src={profile.profile_image_url}
+                  alt={profile.full_name}
+                  width={192}
+                  height={192}
+                  className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-xl"
+                />
+              ) : (
+                <div className="w-48 h-48 rounded-full bg-white/20 flex items-center justify-center border-4 border-white shadow-xl">
+                  <span className="text-6xl font-bold">
+                    {profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </motion.div>
           </div>
 
           {/* Profile Info */}
