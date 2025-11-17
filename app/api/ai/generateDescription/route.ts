@@ -62,13 +62,25 @@ Responde únicamente con el JSON válido, sin texto adicional.`
 
   } catch (error) {
     console.error('Error generating AI description:', error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error('Error details:', {
+      message: errorMessage,
+      type: typeof error
+    })
+
+    // For debugging, return the error instead of fallback
+    // TODO: Remove this and use fallback in production
+    return NextResponse.json({
+      error: 'AI generation failed',
+      details: errorMessage,
+      title: title
+    }, { status: 500 })
 
     // Return fallback response instead of error
-    const fallbackResponse = {
-      summary: `Proyecto: ${title}`,
-      detailedDescription: `Este proyecto utiliza tecnologías modernas para resolver problemas específicos. Incluye funcionalidades avanzadas y una interfaz intuitiva.`
-    }
-
-    return NextResponse.json(fallbackResponse)
+    // const fallbackResponse = {
+    //   summary: `Proyecto: ${title}`,
+    //   detailedDescription: `Este proyecto utiliza tecnologías modernas para resolver problemas específicos. Incluye funcionalidades avanzadas y una interfaz intuitiva.`
+    // }
+    // return NextResponse.json(fallbackResponse)
   }
 }
