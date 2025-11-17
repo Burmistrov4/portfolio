@@ -27,10 +27,11 @@ export const metadata: Metadata = {
 }
 
 /**
- * @description Root layout component for the application.
- * @param {Readonly<{children: React.ReactNode}>} props The props containing children.
- * @returns {JSX.Element} The layout.
- */
+  * @description Root layout component for the application.
+  * @param {Readonly<{children: React.ReactNode}>} props The props containing children.
+  * @returns {JSX.Element} The layout.
+  */
+// Build fix applied - null characters removed
 // Updated with cyberpunk theme and particles background
 export default function RootLayout({
   children,
