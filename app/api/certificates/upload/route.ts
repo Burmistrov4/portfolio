@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
 
     const fileName = `${crypto.randomUUID()}-${file.name}`
 
+    // Ensure the 'certificates' bucket exists and is public in Supabase Storage dashboard
     const { data, error } = await supabase.storage
       .from('certificates')
       .upload(fileName, file, {
