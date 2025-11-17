@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import Image from 'next/image'
 
 interface Project {
   id: string
@@ -24,11 +25,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
       <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
         <CardHeader>
           {project.file_paths && project.file_paths.length > 0 && (
-            <img
-              src={project.file_paths[0]}
-              alt={project.title}
-              className="w-full h-48 object-cover rounded-t-lg"
-            />
+            <div className="relative w-full h-48">
+              <Image
+                src={project.file_paths[0]}
+                alt={project.title}
+                fill
+                className="object-cover rounded-t-lg"
+              />
+            </div>
           )}
           <CardTitle className="text-xl">{project.title}</CardTitle>
         </CardHeader>

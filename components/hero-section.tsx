@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Github, Linkedin, Download } from 'lucide-react'
+import Image from 'next/image'
 
 interface Profile {
   full_name: string
@@ -39,9 +40,11 @@ export function HeroSection({ profile }: HeroSectionProps) {
           {/* Profile Image */}
           <div className="flex-shrink-0">
             {profile.profile_image_url ? (
-              <img
+              <Image
                 src={profile.profile_image_url}
                 alt={profile.full_name}
+                width={192}
+                height={192}
                 className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-xl"
               />
             ) : (

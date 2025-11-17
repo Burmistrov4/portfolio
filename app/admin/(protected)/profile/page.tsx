@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Loader2, User, FileText } from 'lucide-react'
+import Image from 'next/image'
 
 interface ProfileData {
   full_name: string
@@ -245,9 +246,11 @@ export default function ProfilePage() {
             )}
             {profileData.profile_image_url && (
               <div className="mt-2">
-                <img
+                <Image
                   src={profileData.profile_image_url}
                   alt="Profile"
+                  width={80}
+                  height={80}
                   className="w-20 h-20 rounded-full object-cover"
                 />
               </div>

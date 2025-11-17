@@ -1,5 +1,6 @@
 import supabase from '@/lib/supabase'
 import ReactMarkdown from 'react-markdown'
+import Image from 'next/image'
 
 interface Project {
   id: string
@@ -53,12 +54,14 @@ export default async function ProjectDetail({ params }: { params: { id: string }
         {project.file_paths && project.file_paths.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {project.file_paths.map((path: string, index: number) => (
-              <img
-                key={index}
-                src={path}
-                alt={`Imagen ${index + 1} del proyecto ${project.title}`}
-                className="w-full h-64 object-cover rounded-lg shadow-md"
-              />
+              <div key={index} className="relative w-full h-64">
+                <Image
+                  src={path}
+                  alt={`Imagen ${index + 1} del proyecto ${project.title}`}
+                  fill
+                  className="object-cover rounded-lg shadow-md"
+                />
+              </div>
             ))}
           </div>
         )}
