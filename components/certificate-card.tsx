@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { FileText } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 interface Certificate {
   id: string
@@ -16,9 +17,15 @@ interface Certificate {
  * @param {Certificate} certificate The certificate data.
  * @returns {JSX.Element} The certificate card.
  */
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+}
+
 export function CertificateCard({ certificate }: { certificate: Certificate }) {
   return (
-    <Card className="h-full hover:shadow-lg transition-shadow">
+    <motion.div variants={cardVariants}>
+      <Card className="h-full hover:shadow-lg transition-shadow">
       <CardHeader>
         <CardTitle className="text-xl flex items-center gap-2">
           <FileText className="w-5 h-5 text-blue-600" />
@@ -56,5 +63,6 @@ export function CertificateCard({ certificate }: { certificate: Certificate }) {
         </Button>
       </CardContent>
     </Card>
+    </motion.div>
   )
 }

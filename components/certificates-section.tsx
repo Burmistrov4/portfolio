@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { CertificateCard } from '@/components/certificate-card'
 import supabase from '@/lib/supabase-client'
+import { motion } from 'framer-motion'
 
 interface Certificate {
   id: string
@@ -86,11 +87,25 @@ export function CertificatesSection() {
         </h2>
 
         {certificates.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            variants={{
+              hidden: { opacity: 1 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
             {certificates.map((certificate) => (
               <CertificateCard key={certificate.id} certificate={certificate} />
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="text-center py-12">
             <p className="text-slate-600 dark:text-slate-400 text-lg">

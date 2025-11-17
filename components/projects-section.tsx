@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { ProjectCard } from '@/components/project-card'
 import { Badge } from '@/components/ui/badge'
+import { motion } from 'framer-motion'
 
 interface Project {
   id: string
@@ -71,11 +72,25 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
 
         {/* Projects Grid */}
         {filteredProjects.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            variants={{
+              hidden: { opacity: 1 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
             {filteredProjects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="text-center py-12">
             <p className="text-slate-600 dark:text-slate-400 text-lg">

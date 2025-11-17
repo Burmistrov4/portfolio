@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import Image from 'next/image'
+import { motion } from 'framer-motion'
 
 interface Project {
   id: string
@@ -19,10 +20,16 @@ interface ProjectCardProps {
  * @param {ProjectCardProps} props The props containing the project.
  * @returns {JSX.Element} The project card.
  */
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+}
+
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <Link href={`/projects/${project.id}`}>
-      <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+    <motion.div variants={cardVariants}>
+      <Link href={`/projects/${project.id}`}>
+        <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
         <CardHeader>
           {project.file_paths && project.file_paths.length > 0 && (
             <div className="relative w-full h-48">
@@ -43,5 +50,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </CardContent>
       </Card>
     </Link>
+    </motion.div>
   )
 }

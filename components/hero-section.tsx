@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Github, Linkedin, Download } from 'lucide-react'
 import Image from 'next/image'
+import { motion } from 'framer-motion'
 
 interface Profile {
   full_name: string
@@ -35,7 +36,12 @@ export function HeroSection({ profile }: HeroSectionProps) {
 
   return (
     <section className="py-20 px-4 sm:px-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white">
-      <div className="max-w-6xl mx-auto">
+      <motion.div
+        className="max-w-6xl mx-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="flex flex-col lg:flex-row items-center gap-12">
           {/* Profile Image */}
           <div className="flex-shrink-0">
@@ -129,7 +135,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   )
 }
