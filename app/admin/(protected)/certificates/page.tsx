@@ -1,13 +1,14 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Sparkles, Loader2, Upload } from "lucide-react"
+import { FileText, Sparkles, Loader2, Upload, Edit, Trash2, Plus } from "lucide-react"
+import Link from "next/link"
 
 /**
  * @description Page component for uploading certificates to the portfolio.
@@ -24,7 +25,54 @@ export default function CertificateUploadPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [formErrors, setFormErrors] = useState({ title: "", file: "" })
+  const [certificates, setCertificates] = useState<any[]>([])
+  const [isLoadingCerts, setIsLoadingCerts] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    fetchCertificates()
+  }, [])
+
+  const fetchCertificates = async () => {
+    setIsLoadingCerts(true)
+    try {
+      const response = await fetch('/api/certificates')
+      const data = await response.json()
+      if (response.ok) {
+        setCertificates(data)
+      } else {
+        console.error('Error fetching certificates:', data)
+      }
+    } catch (error) {
+      console.error('Error fetching certificates:', error)
+    } finally {
+      setIsLoadingCerts(false)
+    }
+  }
+
+  const handleDeleteCertificate = async (id: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar este certificado?')) return
+
+    setDeletingId(id)
+    try {
+      const response = await fetch(`/api/certificates/${id}`, {
+        method: 'DELETE'
+      })
+      const data = await response.json()
+      if (response.ok) {
+        setCertificates(certificates.filter(c => c.id !== id))
+        alert('Certificado eliminado exitosamente')
+      } else {
+        alert('Error al eliminar: ' + data.error)
+      }
+    } catch (error) {
+      console.error('Error deleting certificate:', error)
+      alert('Error al eliminar el certificado')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -157,6 +205,8 @@ export default function CertificateUploadPage() {
         if (fileInputRef.current) {
           fileInputRef.current.value = ""
         }
+        // Refresh certificates list
+        fetchCertificates()
       } else {
         alert('Error al guardar: ' + saveResult.error)
       }
@@ -309,6 +359,93 @@ export default function CertificateUploadPage() {
               )}
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Certificates List */}
+      <Card className="border-slate-200 dark:border-slate-700 shadow-lg mt-8">
+        <CardHeader className="border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-green-50 to-slate-50 dark:from-slate-800 dark:to-slate-900">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+              <FileText className="w-5 h-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl text-slate-900 dark:text-white">
+                Lista de Certificados
+              </CardTitle>
+              <CardDescription className="text-slate-600 dark:text-slate-400">
+                {certificates.length} certificado{certificates.length !== 1 ? 's' : ''} encontrado{certificates.length !== 1 ? 's' : ''}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="pt-8">
+          {isLoadingCerts ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : certificates.length === 0 ? (
+            <div className="text-center py-12">
+              <FileText className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <p className="text-slate-600 dark:text-slate-400 mb-4">
+                No tienes certificados aún
+              </p>
+              <p className="text-sm text-slate-500 dark:text-slate-500">
+                Usa el formulario de arriba para subir tu primer certificado
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {certificates.map((certificate) => (
+                <div
+                  key={certificate.id}
+                  className="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
+                      {certificate.title}
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 line-clamp-2">
+                      {certificate.description}
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {certificate.technologies?.slice(0, 3).map((tech: string) => (
+                        <Badge key={tech} variant="secondary" className="text-xs">
+                          {tech}
+                        </Badge>
+                      ))}
+                      {certificate.technologies?.length > 3 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{certificate.technologies.length - 3} más
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 ml-4">
+                    <Link href={`/admin/certificates/edit/${certificate.id}`}>
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteCertificate(certificate.id)}
+                      disabled={deletingId === certificate.id}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      {deletingId === certificate.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
