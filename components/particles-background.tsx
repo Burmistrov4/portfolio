@@ -12,7 +12,7 @@ export function ParticlesBackground() {
   const [init, setInit] = useState(false)
 
   useEffect(() => {
-    initParticlesEngine(async (engine) => {
+    initParticlesEngine(async (engine: any) => {
       await loadSlim(engine)
     }).then(() => {
       setInit(true)
@@ -30,52 +30,13 @@ export function ParticlesBackground() {
           value: "transparent",
         },
       },
-      fpsLimit: 120,
-      interactivity: {
-        events: {
-          onClick: {
-            enable: false,
-          },
-          onHover: {
-            enable: false,
-          },
-        },
-        modes: {
-          push: {
-            quantity: 4,
-          },
-          repulse: {
-            distance: 200,
-            duration: 0.4,
-          },
-        },
-      },
+      fpsLimit: 60,
       particles: {
         color: {
           value: "#00FFFF",
         },
-        links: {
-          color: "#00FFFF",
-          distance: 150,
-          enable: true,
-          opacity: 0.1,
-          width: 1,
-        },
-        move: {
-          direction: "none",
-          enable: true,
-          outModes: {
-            default: "bounce",
-          },
-          random: false,
-          speed: 1,
-          straight: false,
-        },
         number: {
-          density: {
-            enable: true,
-          },
-          value: 50,
+          value: 30,
         },
         opacity: {
           value: 0.1,
@@ -85,6 +46,10 @@ export function ParticlesBackground() {
         },
         size: {
           value: { min: 1, max: 3 },
+        },
+        move: {
+          enable: true,
+          speed: 0.5,
         },
       },
       detectRetina: true,

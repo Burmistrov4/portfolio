@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -30,11 +30,7 @@ export default function EditProjectPage({ params }: { params: { id: string } }) 
   const [isSaving, setIsSaving] = useState(false)
   const [formErrors, setFormErrors] = useState({ title: '' })
 
-  useEffect(() => {
-    fetchProject()
-  }, [params.id])
-
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${params.id}`)
       const data = await response.json()
@@ -60,7 +56,11 @@ export default function EditProjectPage({ params }: { params: { id: string } }) 
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [params.id, router])
+
+  useEffect(() => {
+    fetchProject()
+  }, [fetchProject])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
