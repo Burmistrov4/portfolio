@@ -49,15 +49,13 @@ Responde únicamente con el JSON válido, sin texto adicional.`
     // Try to parse as JSON first
     try {
       const parsedResponse = JSON.parse(text)
-      return NextResponse.json(parsedResponse)
+      const summary = parsedResponse.summary || parsedResponse.detailedDescription || text.split('\n')[0] || `Proyecto: ${title}`
+      return NextResponse.json(summary)
     } catch (parseError) {
-      // If not valid JSON, create structured response from text
-      console.warn('AI response not valid JSON, creating fallback structure')
-      const structuredResponse = {
-        summary: text.split('\n')[0] || `Proyecto: ${title}`,
-        detailedDescription: text
-      }
-      return NextResponse.json(structuredResponse)
+      // If not valid JSON, extract summary from text
+      console.warn('AI response not valid JSON, extracting summary')
+      const summary = text.split('\n')[0] || `Proyecto: ${title}`
+      return NextResponse.json(summary)
     }
 
   } catch (error) {

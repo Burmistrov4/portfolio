@@ -94,9 +94,7 @@ export default function CertificateUploadPage() {
       const data = await response.json()
 
       if (response.ok && data) {
-        // Priorizar detailedDescription sobre summary para certificados
-        const description = data.detailedDescription || data.summary || ""
-        setFormData((prev) => ({ ...prev, description }))
+        setFormData((prev) => ({ ...prev, description: data }))
       } else {
         console.error('Error in AI response:', data)
         // Show specific error details from API

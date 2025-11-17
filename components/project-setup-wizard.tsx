@@ -31,7 +31,7 @@ export function ProjectSetupWizard() {
     filePaths: [] as string[],
   })
   const [techInput, setTechInput] = useState("")
-  const [generatedData, setGeneratedData] = useState<{ summary: string; detailedDescription: string } | null>(null)
+  const [generatedData, setGeneratedData] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
@@ -152,8 +152,8 @@ export function ProjectSetupWizard() {
           githubLink: formData.githubUrl,
           demoLink: formData.demoUrl,
           technologies: formData.technologies,
-          aiSummary: generatedData.summary,
-          aiDescription: generatedData.detailedDescription,
+          aiSummary: generatedData,
+          aiDescription: generatedData,
           filePaths: formData.filePaths
         })
       })
@@ -291,17 +291,9 @@ export function ProjectSetupWizard() {
               {generatedData && (
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-slate-900 dark:text-white">Resumen</label>
+                    <label className="block text-sm font-semibold text-slate-900 dark:text-white">Descripción Generada</label>
                     <Textarea
-                      value={generatedData.summary}
-                      readOnly
-                      className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-slate-900 dark:text-white">Descripción Detallada</label>
-                    <Textarea
-                      value={generatedData.detailedDescription}
+                      value={generatedData}
                       readOnly
                       className="min-h-32 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 resize-none"
                     />
