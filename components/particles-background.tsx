@@ -63,10 +63,10 @@ export function ParticlesBackground() {
         id="tsparticles"
         particlesLoaded={particlesLoaded}
         options={options}
-        className="absolute inset-0 z-0 opacity-10"
+        className="absolute inset-0 z-0 opacity-30"
       />
     )
   }
 
-  return <></>
+  return <div className="absolute inset-0 z-0 bg-gradient-to-br from-cyan-900/10 to-purple-900/10" />
 }
