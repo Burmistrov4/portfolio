@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
 
     const prompt = `Genera una descripción detallada en español para un proyecto titulado "${title}".
 ${notes ? `Información adicional: ${notes}` : ''}
