@@ -99,7 +99,9 @@ export default function CertificateUploadPage() {
         setFormData((prev) => ({ ...prev, description }))
       } else {
         console.error('Error in AI response:', data)
-        alert('Error al generar la descripción con IA')
+        // Show specific error details from API
+        const errorMessage = data?.error ? `${data.error}: ${data.details || 'Unknown error'}` : 'Error al generar la descripción con IA'
+        alert(errorMessage)
       }
     } catch (error) {
       console.error('Error generating description:', error)
