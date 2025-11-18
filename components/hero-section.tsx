@@ -111,23 +111,22 @@ export function HeroSection({ profile }: HeroSectionProps) {
                 </Button>
               )}
 
-              {profile.cv_pdf_url && (
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-green-600 hover:bg-green-700 text-white text-lg px-6 py-3"
+              <Button
+                asChild
+                size="lg"
+                className="bg-green-600 hover:bg-green-700 text-white text-lg px-6 py-3"
+                disabled={!profile.cv_pdf_url}
+              >
+                <a
+                  href={profile.cv_pdf_url || '#'}
+                  target={profile.cv_pdf_url ? '_blank' : '_self'}
+                  rel={profile.cv_pdf_url ? 'noopener noreferrer' : undefined}
+                  className="flex items-center gap-2"
                 >
-                  <a
-                    href={profile.cv_pdf_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2"
-                  >
-                    <FileText className="w-6 h-6" />
-                    Curriculum Vitae
-                  </a>
-                </Button>
-              )}
+                  <FileText className="w-6 h-6" />
+                  Curriculum Vitae
+                </a>
+              </Button>
             </div>
           </div>
         </div>
