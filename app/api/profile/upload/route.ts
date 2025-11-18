@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
     const uploadedUrls: string[] = []
 
     for (const file of files) {
-      const fileName = `${crypto.randomUUID()}-${file.name}`
+      const sanitizedName = file.name.replace(/\s+/g, '-')
+      const fileName = `${crypto.randomUUID()}-${sanitizedName}`
 
       const { data, error } = await supabase.storage
         .from('profile')
