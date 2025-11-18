@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
@@ -10,6 +12,17 @@ import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
  */
 export default function LoginForm() {
   const supabase = createBrowserSupabaseClient()
+  const router = useRouter()
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        router.push('/admin/setup-wizard')
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [supabase, router])
 
   return (
     <Auth

@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Github, Linkedin, Download } from 'lucide-react'
+import { Github, Linkedin, Download, FileText } from 'lucide-react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 
@@ -64,7 +64,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
                   alt={profile.full_name}
                   width={192}
                   height={192}
-                  className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-xl"
+                  className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-xl z-50 relative"
                 />
               ) : (
                 <div className="w-48 h-48 rounded-full bg-white/20 flex items-center justify-center border-4 border-white shadow-xl">
@@ -141,8 +141,8 @@ export function HeroSection({ profile }: HeroSectionProps) {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2"
                   >
-                    <Download className="w-5 h-5" />
-                    Descargar CV
+                    <FileText className="w-5 h-5" />
+                    Ver CV
                   </a>
                 </Button>
               )}
