@@ -1,10 +1,11 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { FileText, Github, Linkedin, Download, Sparkles } from 'lucide-react'
+import { FileText, Github, Linkedin, Download, Sparkles, Sun, Moon } from 'lucide-react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import { useTheme } from 'next-themes'
 
 interface Profile {
   full_name: string
@@ -29,6 +30,9 @@ export function HeroSection({ profile }: HeroSectionProps) {
   const [showIntro, setShowIntro] = useState(true)
   const [showMain, setShowMain] = useState(false)
   const [bgClicked, setBgClicked] = useState({ radial: false, blue: false, purple: false, cyan: false })
+  const [ripples, setRipples] = useState<{id: number, x: number, y: number}[]>([])
+  const [scatterParticles, setScatterParticles] = useState(false)
+  const { theme, setTheme } = useTheme()
 
   // Temporary hardcoded URLs for testing
   const testImageUrl = 'https://vnxplxyexntbcikjuxhg.supabase.co/storage/v1/object/public/profile/151fba6b-d3ae-470b-af73-29bba50d42e3-IMG_20240728_212519-removebg-preview.png'
@@ -47,8 +51,29 @@ export function HeroSection({ profile }: HeroSectionProps) {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4 z-20">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="bg-white/10 border-white/20 hover:bg-white/20 text-white"
+        >
+          <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </div>
+
       {/* Animated Background */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0" onClick={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect()
+        const x = e.clientX - rect.left
+        const y = e.clientY - rect.top
+        setRipples(prev => [...prev, {id: Date.now(), x, y}])
+        setScatterParticles(true)
+        setTimeout(() => setScatterParticles(false), 2000)
+      }}>
         <motion.div
           className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)] animate-pulse cursor-pointer"
           whileTap={{ scale: 1.05 }}
@@ -82,11 +107,19 @@ export function HeroSection({ profile }: HeroSectionProps) {
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
             }}
-            animate={{
+            animate={scatterParticles ? {
+              x: [0, (Math.random() - 0.5) * 200],
+              y: [0, (Math.random() - 0.5) * 200],
+              opacity: [0.8, 0],
+              scale: [1, 0.5],
+            } : {
               y: [-20, 20, -20],
               opacity: [0.2, 0.8, 0.2],
             }}
-            transition={{
+            transition={scatterParticles ? {
+              duration: 2,
+              ease: "easeOut",
+            } : {
               duration: 3 + Math.random() * 2,
               repeat: Infinity,
               delay: Math.random() * 2,
@@ -94,6 +127,24 @@ export function HeroSection({ profile }: HeroSectionProps) {
           />
         ))}
       </div>
+
+      {/* Ripples */}
+      {ripples.map(ripple => (
+        <motion.div
+          key={ripple.id}
+          className="absolute rounded-full bg-white/30 pointer-events-none"
+          style={{
+            left: ripple.x - 50,
+            top: ripple.y - 50,
+            width: 100,
+            height: 100,
+          }}
+          initial={{ scale: 0, opacity: 0.8 }}
+          animate={{ scale: 4, opacity: 0 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          onAnimationComplete={() => setRipples(prev => prev.filter(r => r.id !== ripple.id))}
+        />
+      ))}
 
       {/* Intro Animation */}
       <AnimatePresence>

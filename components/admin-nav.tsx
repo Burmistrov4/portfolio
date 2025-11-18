@@ -2,8 +2,9 @@
 
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { LogOut, User, FileText, Settings } from 'lucide-react'
+import { LogOut, User, FileText, Settings, Sun, Moon } from 'lucide-react'
 import Link from 'next/link'
+import { useTheme } from 'next-themes'
 
 /**
  * @description Navigation component for admin pages.
@@ -11,6 +12,7 @@ import Link from 'next/link'
  */
 export function AdminNav() {
   const router = useRouter()
+  const { theme, setTheme } = useTheme()
 
   const handleLogout = async () => {
     try {
@@ -61,6 +63,18 @@ export function AdminNav() {
                 Ver Sitio
               </Button>
             </Link>
+
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="text-white hover:bg-slate-800"
+            >
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
 
             {/* Logout Button */}
             <Button
