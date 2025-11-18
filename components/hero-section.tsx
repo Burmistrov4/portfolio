@@ -1,9 +1,8 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Github, Linkedin, Download, FileText } from 'lucide-react'
+import { Github, Linkedin, FileText } from 'lucide-react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 
 interface Profile {
   full_name: string
@@ -27,64 +26,47 @@ interface HeroSectionProps {
 export function HeroSection({ profile }: HeroSectionProps) {
   if (!profile) {
     return (
-      <section className="py-16 px-4 sm:px-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <section className="py-16 px-4 sm:px-8 bg-gray-100 text-gray-900">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl font-bold mb-4">Bienvenido a Mi Portafolio</h1>
-          <p className="text-xl opacity-90">Explora mis proyectos y trabajos</p>
+          <p className="text-xl">Explora mis proyectos y trabajos</p>
         </div>
       </section>
     )
   }
 
   return (
-    <section className="py-20 px-4 sm:px-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white">
-      <motion.div
-        className="max-w-6xl mx-auto"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+    <section className="py-20 px-4 sm:px-8 bg-white text-gray-900">
+      <div className="max-w-6xl mx-auto">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           {/* Profile Image */}
           <div className="flex-shrink-0">
-            <motion.div
-              className="relative p-1 rounded-full bg-gradient-to-r from-cyan-400 via-purple-500 to-cyan-400 bg-size-200 animate-gradient-x"
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-            >
-              {profile.profile_image_url ? (
-                <Image
-                  src={profile.profile_image_url}
-                  alt={profile.full_name}
-                  width={192}
-                  height={192}
-                  className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-xl z-50 relative"
-                />
-              ) : (
-                <div className="w-48 h-48 rounded-full bg-white/20 flex items-center justify-center border-4 border-white shadow-xl">
-                  <span className="text-6xl font-bold">
-                    {profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                  </span>
-                </div>
-              )}
-            </motion.div>
+            {profile.profile_image_url ? (
+              <Image
+                src={profile.profile_image_url}
+                alt={profile.full_name}
+                width={192}
+                height={192}
+                className="w-48 h-48 rounded-full object-cover border-4 border-gray-300"
+              />
+            ) : (
+              <div className="w-48 h-48 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300">
+                <span className="text-6xl font-bold text-gray-600">
+                  {profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Profile Info */}
           <div className="flex-1 text-center lg:text-left">
-            <h1 className="text-5xl lg:text-6xl font-bold mb-4">
+            <h1 className="text-5xl lg:text-6xl font-bold mb-4 text-gray-900">
               {profile.full_name}
             </h1>
-            <h2 className="text-2xl lg:text-3xl font-light mb-6 opacity-90">
+            <h2 className="text-2xl lg:text-3xl font-light mb-6 text-gray-700">
               {profile.professional_title}
             </h2>
-            <p className="text-lg lg:text-xl leading-relaxed mb-8 opacity-90 max-w-2xl">
+            <p className="text-lg lg:text-xl leading-relaxed mb-8 text-gray-600 max-w-2xl">
               {profile.bio}
             </p>
 
@@ -93,9 +75,9 @@ export function HeroSection({ profile }: HeroSectionProps) {
               {profile.linkedin_url && (
                 <Button
                   asChild
-                  variant="secondary"
+                  variant="outline"
                   size="lg"
-                  className="bg-white text-blue-600 hover:bg-gray-100"
+                  className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
                 >
                   <a
                     href={profile.linkedin_url}
@@ -112,9 +94,9 @@ export function HeroSection({ profile }: HeroSectionProps) {
               {profile.github_url && (
                 <Button
                   asChild
-                  variant="secondary"
+                  variant="outline"
                   size="lg"
-                  className="bg-white text-gray-900 hover:bg-gray-100"
+                  className="border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white"
                 >
                   <a
                     href={profile.github_url}
@@ -127,29 +109,31 @@ export function HeroSection({ profile }: HeroSectionProps) {
                   </a>
                 </Button>
               )}
-
-              {profile.cv_pdf_url && (
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="border-white text-white hover:bg-white hover:text-blue-600"
-                >
-                  <a
-                    href={profile.cv_pdf_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2"
-                  >
-                    <FileText className="w-5 h-5" />
-                    Ver CV
-                  </a>
-                </Button>
-              )}
             </div>
           </div>
         </div>
-      </motion.div>
+
+        {/* CV Button in corner */}
+        {profile.cv_pdf_url && (
+          <div className="fixed bottom-4 right-4 z-50">
+            <Button
+              asChild
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+            >
+              <a
+                href={profile.cv_pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2"
+              >
+                <FileText className="w-5 h-5" />
+                Ver CV
+              </a>
+            </Button>
+          </div>
+        )}
+      </div>
     </section>
   )
 }
