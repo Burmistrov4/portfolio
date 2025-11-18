@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
 import supabase from '@/lib/supabase'
 
 /**
@@ -9,16 +7,8 @@ import supabase from '@/lib/supabase'
  * @returns {NextResponse} The response with profile data.
  */
 export async function GET(request: NextRequest) {
-  const supabaseAuth = createRouteHandlerClient(
-    { cookies },
-    {
-      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    }
-  )
-
   try {
-    const { data, error } = await supabaseAuth
+    const { data, error } = await supabase
       .from('profile')
       .select('*')
       .eq('id', 1)
