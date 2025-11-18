@@ -35,6 +35,8 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
   const [isUploadingCV, setIsUploadingCV] = useState(false)
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
+  const [selectedCVFile, setSelectedCVFile] = useState<File | null>(null)
 
   useEffect(() => {
     loadProfile()
@@ -239,7 +241,12 @@ export default function ProfilePage() {
             <Input
               type="file"
               accept="image/*"
-              onChange={(e) => e.target.files && handleFileUpload(e.target.files, 'image')}
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  setSelectedImageFile(e.target.files[0])
+                  handleFileUpload(e.target.files, 'image')
+                }
+              }}
               disabled={isUploadingImage}
               className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
@@ -249,10 +256,10 @@ export default function ProfilePage() {
                 <p>Subiendo imagen...</p>
               </div>
             )}
-            {profileData.profile_image_url && (
+            {(selectedImageFile || profileData.profile_image_url) && (
               <div className="mt-2">
                 <Image
-                  src={profileData.profile_image_url}
+                  src={selectedImageFile ? URL.createObjectURL(selectedImageFile) : (profileData.profile_image_url || '')}
                   alt="Profile"
                   width={80}
                   height={80}
@@ -270,7 +277,12 @@ export default function ProfilePage() {
             <Input
               type="file"
               accept=".pdf"
-              onChange={(e) => e.target.files && handleFileUpload(e.target.files, 'cv')}
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  setSelectedCVFile(e.target.files[0])
+                  handleFileUpload(e.target.files, 'cv')
+                }
+              }}
               disabled={isUploadingCV}
               className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
