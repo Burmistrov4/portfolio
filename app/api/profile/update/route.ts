@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
+import supabase from '@/lib/supabase'
 
 /**
  * @description API route to update profile data.
@@ -32,6 +33,15 @@ export async function POST(request: NextRequest) {
       cv_pdf_url
     } = await request.json()
 
+    // Get current profile to get old image filename
+    const { data: currentProfile } = await supabaseAuth
+      .from('profile')
+      .select('profile_image_url')
+      .eq('id', 1)
+      .single()
+
+    const oldImageFilename = currentProfile?.profile_image_url
+
     const { data, error } = await supabaseAuth
       .from('profile')
       .upsert({
@@ -50,6 +60,11 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Delete old image file if exists and different from new
+    if (oldImageFilename && oldImageFilename !== profile_image_url) {
+      await supabase.storage.from('project-files').remove([oldImageFilename])
     }
 
     return NextResponse.json({ success: true, profile: data[0] }, { status: 200 })

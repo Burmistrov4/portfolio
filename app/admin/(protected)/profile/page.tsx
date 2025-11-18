@@ -80,10 +80,11 @@ export default function ProfilePage() {
       console.log('Upload result:', result)
       if (result.urls && result.urls.length > 0) {
         const url = result.urls[0]
-        console.log('Setting profile_image_url to:', url)
+        const filename = url.split('/').pop()
+        console.log('Setting profile_image_url to filename:', filename)
         setProfileData(prev => ({
           ...prev,
-          [type === 'image' ? 'profile_image_url' : 'cv_pdf_url']: url
+          [type === 'image' ? 'profile_image_url' : 'cv_pdf_url']: filename
         }))
       } else {
         alert('Error al subir archivo: ' + result.error)
