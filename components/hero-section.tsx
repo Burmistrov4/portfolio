@@ -28,6 +28,7 @@ interface HeroSectionProps {
 export function HeroSection({ profile }: HeroSectionProps) {
   const [showIntro, setShowIntro] = useState(true)
   const [showMain, setShowMain] = useState(false)
+  const [bgClicked, setBgClicked] = useState({ radial: false, blue: false, purple: false, cyan: false })
 
   // Temporary hardcoded URLs for testing
   const testImageUrl = 'https://vnxplxyexntbcikjuxhg.supabase.co/storage/v1/object/public/profile/151fba6b-d3ae-470b-af73-29bba50d42e3-IMG_20240728_212519-removebg-preview.png'
@@ -48,10 +49,27 @@ export function HeroSection({ profile }: HeroSectionProps) {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
       {/* Animated Background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)] animate-pulse"></div>
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-bounce"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-bounce" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-2xl animate-pulse"></div>
+        <motion.div
+          className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)] animate-pulse cursor-pointer"
+          whileTap={{ scale: 1.05 }}
+          transition={{ duration: 0.2 }}
+        ></motion.div>
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-bounce cursor-pointer"
+          whileTap={{ scale: 1.2, rotate: 10 }}
+          transition={{ duration: 0.3 }}
+        ></motion.div>
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-bounce cursor-pointer"
+          style={{ animationDelay: '1s' }}
+          whileTap={{ scale: 1.2, rotate: -10 }}
+          transition={{ duration: 0.3 }}
+        ></motion.div>
+        <motion.div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-2xl animate-pulse cursor-pointer"
+          whileTap={{ scale: 1.3 }}
+          transition={{ duration: 0.4 }}
+        ></motion.div>
       </div>
 
       {/* Floating Particles */}

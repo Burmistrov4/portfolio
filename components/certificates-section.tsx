@@ -111,8 +111,39 @@ export function CertificatesSection() {
   }
 
   return (
-    <section className="py-16 px-4 sm:px-8">
-      <div className="max-w-6xl mx-auto">
+    <section className="relative py-16 px-4 sm:px-8 overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-emerald-50/30 to-teal-50/20"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-green-200/20 rounded-full blur-3xl animate-bounce"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-200/20 rounded-full blur-3xl animate-bounce" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-200/10 rounded-full blur-2xl animate-pulse"></div>
+      </div>
+
+      {/* Floating Elements */}
+      <div className="absolute inset-0">
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-3 h-3 bg-green-300/30 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [-25, 25, -25],
+              opacity: [0.3, 0.7, 0.3],
+            }}
+            transition={{
+              duration: 3.5 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto">
         <h2 className="text-4xl font-bold text-center mb-12 text-slate-900 dark:text-white">
           Mis Certificados
         </h2>
