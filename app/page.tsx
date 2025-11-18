@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-// Force redeploy 2
+// Force redeploy 3
 import supabase from '@/lib/supabase'
 import { HeroSection } from '@/components/hero-section'
 import { ProjectsSection } from '@/components/projects-section'
