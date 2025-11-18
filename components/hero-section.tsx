@@ -47,7 +47,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
                 alt={profile.full_name}
                 width={192}
                 height={192}
-                className="w-48 h-48 rounded-full object-cover border-4 border-gray-300"
+                className="w-48 h-48 rounded-full object-cover border-4 border-gray-300 z-[100] relative"
                 unoptimized={true}
               />
             ) : (
