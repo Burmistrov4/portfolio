@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     let profileImageUrl = ''
     if (data.profile_image_url) {
       const { data: { publicUrl } } = supabase.storage
-        .from('project-files')
+        .from('profile')
         .getPublicUrl(data.profile_image_url)
       profileImageUrl = publicUrl
     }

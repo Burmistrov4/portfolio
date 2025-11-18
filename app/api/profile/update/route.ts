@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     // Delete old image file if exists and different from new
     if (oldImageFilename && oldImageFilename !== profile_image_url) {
-      await supabase.storage.from('project-files').remove([oldImageFilename])
+      await supabase.storage.from('profile').remove([oldImageFilename])
     }
 
     return NextResponse.json({ success: true, profile: data[0] }, { status: 200 })
