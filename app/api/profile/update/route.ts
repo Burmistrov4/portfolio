@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
 import supabase from '@/lib/supabase'
 
 /**
@@ -9,19 +7,6 @@ import supabase from '@/lib/supabase'
  * @returns {NextResponse} The response with success or error.
  */
 export async function POST(request: NextRequest) {
-  const supabaseAuth = createRouteHandlerClient(
-    { cookies },
-    {
-      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    }
-  )
-  const { data: { session } } = await supabaseAuth.auth.getSession()
-
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   try {
     const {
       full_name,
@@ -34,7 +19,7 @@ export async function POST(request: NextRequest) {
     } = await request.json()
 
     // Get current profile to get old URLs
-    const { data: currentProfile } = await supabaseAuth
+    const { data: currentProfile } = await supabase
       .from('profile')
       .select('profile_image_url, cv_pdf_url')
       .eq('id', 1)
@@ -43,7 +28,7 @@ export async function POST(request: NextRequest) {
     const oldImageUrl = currentProfile?.profile_image_url
     const oldCvUrl = currentProfile?.cv_pdf_url
 
-    const { data, error } = await supabaseAuth
+    const { data, error } = await supabase
       .from('profile')
       .upsert({
         id: 1,
