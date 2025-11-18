@@ -4,9 +4,9 @@ import { ParticlesBackground } from '@/components/particles-background'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'Lorenzo\'s Porfolio web App',
+  description: 'Created with the new Next.js 13 App Router',
+  generator: 'Next.js',
   icons: {
     icon: [
       {

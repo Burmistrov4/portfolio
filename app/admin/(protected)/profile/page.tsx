@@ -77,8 +77,10 @@ export default function ProfilePage() {
       })
 
       const result = await response.json()
+      console.log('Upload result:', result)
       if (result.urls && result.urls.length > 0) {
         const url = result.urls[0]
+        console.log('Setting profile_image_url to:', url)
         setProfileData(prev => ({
           ...prev,
           [type === 'image' ? 'profile_image_url' : 'cv_pdf_url']: url
@@ -96,6 +98,7 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setIsSaving(true)
+    console.log('Saving profile data:', profileData)
     try {
       const response = await fetch('/api/profile/update', {
         method: 'POST',
@@ -103,11 +106,12 @@ export default function ProfilePage() {
         body: JSON.stringify(profileData)
       })
 
+      const result = await response.json()
+      console.log('Save response:', result)
       if (response.ok) {
         alert('Perfil guardado exitosamente!')
       } else {
-        const error = await response.json()
-        alert('Error al guardar: ' + error.error)
+        alert('Error al guardar: ' + result.error)
       }
     } catch (error) {
       console.error('Error saving profile:', error)

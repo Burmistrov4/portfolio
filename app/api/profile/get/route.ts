@@ -15,11 +15,6 @@ export async function GET(request: NextRequest) {
       supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     }
   )
-  const { data: { session } } = await supabaseAuth.auth.getSession()
-
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
 
   try {
     const { data, error } = await supabaseAuth

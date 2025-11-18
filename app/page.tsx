@@ -13,13 +13,13 @@ export default async function Home() {
   // Load profile data
   let profileData = null
   try {
-    const { data: profile, error: profileError } = await supabase
-      .from('profile')
-      .select('*')
-      .eq('id', 1)
-      .single()
-
-    profileData = profileError ? null : profile
+    const response = await fetch('/api/profile/get', {
+      cache: 'no-store'
+    })
+    if (response.ok) {
+      profileData = await response.json()
+      console.log('Fetched profile data:', profileData)
+    }
   } catch (err) {
     console.error('Error fetching profile:', err)
   }
