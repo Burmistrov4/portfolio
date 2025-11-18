@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     // Delete old image file if exists and different from new
     if (oldImageUrl && oldImageUrl !== profile_image_url) {
-      const oldImageFilename = oldImageUrl.split('/').pop()
+      const oldImageFilename = decodeURIComponent(oldImageUrl.split('/').pop())
       if (oldImageFilename) {
         await supabase.storage.from('profile').remove([oldImageFilename])
       }
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     // Delete old CV file if exists and different from new
     if (oldCvUrl && oldCvUrl !== cv_pdf_url) {
-      const oldCvFilename = oldCvUrl.split('/').pop()
+      const oldCvFilename = decodeURIComponent(oldCvUrl.split('/').pop())
       if (oldCvFilename) {
         await supabase.storage.from('profile').remove([oldCvFilename])
       }
