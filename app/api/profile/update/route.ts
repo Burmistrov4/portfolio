@@ -33,14 +33,15 @@ export async function POST(request: NextRequest) {
       cv_pdf_url
     } = await request.json()
 
-    // Get current profile to get old image filename
+    // Get current profile to get old filenames
     const { data: currentProfile } = await supabaseAuth
       .from('profile')
-      .select('profile_image_url')
+      .select('profile_image_url, cv_pdf_url')
       .eq('id', 1)
       .single()
 
     const oldImageFilename = currentProfile?.profile_image_url
+    const oldCvUrl = currentProfile?.cv_pdf_url
 
     const { data, error } = await supabaseAuth
       .from('profile')
@@ -65,6 +66,14 @@ export async function POST(request: NextRequest) {
     // Delete old image file if exists and different from new
     if (oldImageFilename && oldImageFilename !== profile_image_url) {
       await supabase.storage.from('profile').remove([oldImageFilename])
+    }
+
+    // Delete old CV file if exists and different from new
+    if (oldCvUrl && oldCvUrl !== cv_pdf_url) {
+      const oldCvFilename = oldCvUrl.split('/').pop()
+      if (oldCvFilename) {
+        await supabase.storage.from('profile').remove([oldCvFilename])
+      }
     }
 
     return NextResponse.json({ success: true, profile: data[0] }, { status: 200 })
