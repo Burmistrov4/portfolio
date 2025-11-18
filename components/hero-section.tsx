@@ -109,30 +109,27 @@ export function HeroSection({ profile }: HeroSectionProps) {
                   </a>
                 </Button>
               )}
+
+              {profile.cv_pdf_url && (
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-green-600 hover:bg-green-700 text-white text-lg px-6 py-3"
+                >
+                  <a
+                    href={profile.cv_pdf_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="w-6 h-6" />
+                    Curriculum Vitae
+                  </a>
+                </Button>
+              )}
             </div>
           </div>
         </div>
-
-        {/* CV Button in corner */}
-        {profile.cv_pdf_url && (
-          <div className="fixed bottom-4 right-4 z-50">
-            <Button
-              asChild
-              size="lg"
-              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
-            >
-              <a
-                href={profile.cv_pdf_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
-                <FileText className="w-5 h-5" />
-                Ver CV
-              </a>
-            </Button>
-          </div>
-        )}
       </div>
     </section>
   )
