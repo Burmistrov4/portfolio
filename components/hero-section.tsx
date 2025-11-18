@@ -48,6 +48,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
                 width={192}
                 height={192}
                 className="w-48 h-48 rounded-full object-cover border-4 border-gray-300"
+                unoptimized={true}
               />
             ) : (
               <div className="w-48 h-48 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300">
