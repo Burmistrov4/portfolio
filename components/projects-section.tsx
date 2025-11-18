@@ -43,8 +43,39 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   }, [projects, selectedTech])
 
   return (
-    <section className="py-16 px-4 sm:px-8">
-      <div className="max-w-6xl mx-auto">
+    <section className="relative py-16 px-4 sm:px-8 overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl animate-bounce"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl animate-bounce" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-200/10 rounded-full blur-2xl animate-pulse"></div>
+      </div>
+
+      {/* Floating Elements */}
+      <div className="absolute inset-0">
+        {[...Array(15)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-3 h-3 bg-blue-300/30 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [-30, 30, -30],
+              opacity: [0.3, 0.8, 0.3],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 3,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto">
         <h2 className="text-4xl font-bold text-center mb-12 text-slate-900 dark:text-white">
           Mis Proyectos
         </h2>

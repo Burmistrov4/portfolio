@@ -47,20 +47,25 @@ export function CertificateCard({ certificate }: { certificate: Certificate }) {
           </div>
         )}
 
-        <Button
-          asChild
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <a
-            href={certificate.cert_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2"
+          <Button
+            asChild
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 shadow-lg hover:shadow-blue-500/25 px-6 py-3 text-lg font-semibold"
           >
-            <FileText className="w-4 h-4" />
-            Ver Certificado
-          </a>
-        </Button>
+            <a
+              href={certificate.cert_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-3"
+            >
+              <FileText className="w-5 h-5" />
+              Ver Certificado
+            </a>
+          </Button>
+        </motion.div>
       </CardContent>
     </Card>
     </motion.div>

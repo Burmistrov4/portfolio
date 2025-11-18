@@ -3,7 +3,8 @@
 import { Button } from '@/components/ui/button'
 import { FileText, Github, Linkedin, Download, Sparkles } from 'lucide-react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from 'react'
 
 interface Profile {
   full_name: string
@@ -20,17 +21,28 @@ interface HeroSectionProps {
 }
 
 /**
- * @description Modern hero section with animated background and profile display.
+ * @description Modern hero section with intro animation and profile display.
  * @param {HeroSectionProps} props The props containing profile data.
  * @returns {JSX.Element} The hero section.
  */
 export function HeroSection({ profile }: HeroSectionProps) {
+  const [showIntro, setShowIntro] = useState(true)
+  const [showMain, setShowMain] = useState(false)
+
   // Temporary hardcoded URLs for testing
   const testImageUrl = 'https://vnxplxyexntbcikjuxhg.supabase.co/storage/v1/object/public/profile/151fba6b-d3ae-470b-af73-29bba50d42e3-IMG_20240728_212519-removebg-preview.png'
   const testCvUrl = 'https://vnxplxyexntbcikjuxhg.supabase.co/storage/v1/object/public/profile/f02df04c-cd23-4547-a715-da47b42adced-Curriculum-Vitae-CV-Profesional-Beige_2.pdf'
 
   const displayImageUrl = profile?.profile_image_url || testImageUrl
   const displayCvUrl = profile?.cv_pdf_url || testCvUrl
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowIntro(false)
+      setTimeout(() => setShowMain(true), 500)
+    }, 3000)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
@@ -65,173 +77,252 @@ export function HeroSection({ profile }: HeroSectionProps) {
         ))}
       </div>
 
-      <motion.div
-        className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-          {/* Profile Image */}
+      {/* Intro Animation */}
+      <AnimatePresence>
+        {showIntro && (
           <motion.div
-            className="flex-shrink-0"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="relative">
-              <motion.div
-                className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 p-1 animate-spin"
-                style={{ animationDuration: '8s' }}
-              >
-                <div className="w-full h-full rounded-full bg-slate-900"></div>
-              </motion.div>
-              <div className="relative p-1 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-400">
-                <Image
-                  src={displayImageUrl}
-                  alt={profile?.full_name || 'Profile'}
-                  width={240}
-                  height={240}
-                  className="w-60 h-60 rounded-full object-cover border-4 border-slate-800 shadow-2xl"
-                  unoptimized={true}
-                />
-              </div>
-              <motion.div
-                className="absolute -top-2 -right-2 bg-blue-500 rounded-full p-2"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className="w-6 h-6 text-white" />
-              </motion.div>
-            </div>
-          </motion.div>
-
-          {/* Profile Info */}
-          <motion.div
-            className="flex-1 text-white"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            <motion.h1
-              className="text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-            >
-              {profile?.full_name || 'Lorenzo Roca'}
-            </motion.h1>
-
-            <motion.h2
-              className="text-2xl lg:text-3xl font-light mb-8 text-blue-200"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-            >
-              {profile?.professional_title || 'Analista de Sistemas'}
-            </motion.h2>
-
-            <motion.p
-              className="text-lg lg:text-xl leading-relaxed mb-12 text-gray-300 max-w-3xl mx-auto lg:mx-0"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 1 }}
-            >
-              {profile?.bio || 'Me especializo en el análisis, diseño e implementación de sistemas web full-stack modernos, con experiencia directa en la orquestación de servicios de Inteligencia Artificial (IA) y la arquitectura sin servidor (serverless).'}
-            </motion.p>
-
-            {/* CTA Buttons */}
             <motion.div
-              className="flex flex-wrap gap-6 justify-center lg:justify-start"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1.2 }}
+              className="text-center"
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1, ease: "easeOut" }}
             >
-              {profile?.linkedin_url && (
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    asChild
-                    size="lg"
-                    className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 shadow-lg hover:shadow-blue-500/25 px-8 py-4 text-lg font-semibold"
-                  >
-                    <a
-                      href={profile.linkedin_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3"
-                    >
-                      <Linkedin className="w-6 h-6" />
-                      LinkedIn
-                    </a>
-                  </Button>
-                </motion.div>
-              )}
-
-              {profile?.github_url && (
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    asChild
-                    size="lg"
-                    className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 shadow-lg hover:shadow-gray-500/25 px-8 py-4 text-lg font-semibold"
-                  >
-                    <a
-                      href={profile.github_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3"
-                    >
-                      <Github className="w-6 h-6" />
-                      GitHub
-                    </a>
-                  </Button>
-                </motion.div>
-              )}
-
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <motion.h1
+                className="text-6xl lg:text-8xl font-bold mb-8 bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent"
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+                style={{
+                  backgroundSize: "200% 200%",
+                }}
               >
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border border-green-500 shadow-lg hover:shadow-green-500/25 px-8 py-4 text-lg font-semibold"
-                >
-                  <a
-                    href={displayCvUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3"
-                  >
-                    <Download className="w-6 h-6" />
-                    Curriculum Vitae
-                  </a>
-                </Button>
+                Bienvenidos
+              </motion.h1>
+              <motion.p
+                className="text-2xl lg:text-3xl text-blue-200"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.5 }}
+              >
+                a mi Resumen Curricular
+              </motion.p>
+              <motion.div
+                className="mt-12 flex justify-center space-x-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 1 }}
+              >
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-3 h-3 bg-blue-400 rounded-full"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      delay: i * 0.2,
+                    }}
+                  />
+                ))}
               </motion.div>
             </motion.div>
           </motion.div>
-        </div>
+        )}
+      </AnimatePresence>
 
-        {/* Scroll Indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+      {/* Main Content */}
+      <AnimatePresence>
+        {showMain && (
+          <motion.div
+            className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+              {/* Profile Image */}
+              <motion.div
+                className="flex-shrink-0"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <div className="relative">
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 p-1 animate-spin"
+                    style={{ animationDuration: '8s' }}
+                  >
+                    <div className="w-full h-full rounded-full bg-slate-900"></div>
+                  </motion.div>
+                  <div className="relative p-1 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-400">
+                    <Image
+                      src={displayImageUrl}
+                      alt={profile?.full_name || 'Profile'}
+                      width={240}
+                      height={240}
+                      className="w-60 h-60 rounded-full object-cover border-4 border-slate-800 shadow-2xl"
+                      unoptimized={true}
+                    />
+                  </div>
+                  <motion.div
+                    className="absolute -top-2 -right-2 bg-blue-500 rounded-full p-2 cursor-pointer"
+                    whileHover={{
+                      rotate: 360,
+                      scale: 1.2,
+                      transition: { duration: 0.3 }
+                    }}
+                    whileTap={{
+                      rotate: 720,
+                      scale: 1.3,
+                      transition: { duration: 0.2 }
+                    }}
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </motion.div>
+                </div>
+              </motion.div>
+
+              {/* Profile Info */}
+              <motion.div
+                className="flex-1 text-white"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+              >
+                <motion.h1
+                  className="text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.6 }}
+                >
+                  {profile?.full_name || 'Lorenzo Roca'}
+                </motion.h1>
+
+                <motion.h2
+                  className="text-2xl lg:text-3xl font-light mb-8 text-blue-200"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.8 }}
+                >
+                  {profile?.professional_title || 'Analista de Sistemas'}
+                </motion.h2>
+
+                <motion.p
+                  className="text-lg lg:text-xl leading-relaxed mb-12 text-gray-300 max-w-3xl mx-auto lg:mx-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 1 }}
+                >
+                  {profile?.bio || 'Me especializo en el análisis, diseño e implementación de sistemas web full-stack modernos, con experiencia directa en la orquestación de servicios de Inteligencia Artificial (IA) y la arquitectura sin servidor (serverless).'}
+                </motion.p>
+
+                {/* CTA Buttons */}
+                <motion.div
+                  className="flex flex-wrap gap-6 justify-center lg:justify-start"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 1.2 }}
+                >
+                  {profile?.linkedin_url && (
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        asChild
+                        size="lg"
+                        className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 shadow-lg hover:shadow-blue-500/25 px-8 py-4 text-lg font-semibold"
+                      >
+                        <a
+                          href={profile.linkedin_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3"
+                        >
+                          <Linkedin className="w-6 h-6" />
+                          LinkedIn
+                        </a>
+                      </Button>
+                    </motion.div>
+                  )}
+
+                  {profile?.github_url && (
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="relative"
+                    >
+                      <Button
+                        asChild
+                        size="lg"
+                        className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 shadow-lg hover:shadow-gray-500/25 px-8 py-4 text-lg font-semibold"
+                      >
+                        <a
+                          href={profile.github_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3"
+                        >
+                          <Github className="w-6 h-6" />
+                          GitHub
+                        </a>
+                      </Button>
+                    </motion.div>
+                  )}
+
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      asChild
+                      size="lg"
+                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border border-green-500 shadow-lg hover:shadow-green-500/25 px-8 py-4 text-lg font-semibold"
+                    >
+                      <a
+                        href={displayCvUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3"
+                      >
+                        <Download className="w-6 h-6" />
+                        Curriculum Vitae
+                      </a>
+                    </Button>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+            </div>
+
+            {/* Scroll Indicator */}
             <motion.div
-              className="w-1 h-3 bg-white/60 rounded-full mt-2"
-              animate={{ y: [0, 12, 0] }}
+              className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+              animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
-            />
-          </div>
-        </motion.div>
-      </motion.div>
+            >
+              <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+                <motion.div
+                  className="w-1 h-3 bg-white/60 rounded-full mt-2"
+                  animate={{ y: [0, 12, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }
