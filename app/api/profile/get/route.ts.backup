@@ -30,22 +30,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Build public URLs from filenames stored in DB
-    const profileData = { ...data }
-    if (data.profile_image_url) {
-      const { data: { publicUrl: imageUrl } } = supabase.storage
-        .from('profile')
-        .getPublicUrl(data.profile_image_url)
-      profileData.profile_image_url = imageUrl
-    }
-    if (data.cv_pdf_url) {
-      const { data: { publicUrl: cvUrl } } = supabase.storage
-        .from('profile')
-        .getPublicUrl(data.cv_pdf_url)
-      profileData.cv_pdf_url = cvUrl
-    }
-
-    return NextResponse.json(profileData, { status: 200 })
+    // URLs are already public
+    return NextResponse.json(data, { status: 200 })
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
