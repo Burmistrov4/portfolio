@@ -252,16 +252,18 @@ export function ProjectSetupWizard() {
   }
 
   const handleComplete = async () => {
-    if (!generatedData) return
     setIsSaving(true)
     try {
+      // Determine description with fallback logic: generated > aiNotes > null
+      const description = generatedData || formData.aiNotes || null
+
       const payload = {
         title: formData.projectTitle,
         github_link: formData.githubUrl,
         demo_link: formData.demoUrl,
         technologies: formData.technologies,
-        ai_summary: generatedData,
-        ai_description: generatedData,
+        ai_summary: description,
+        ai_description: description,
         file_paths: formData.filePaths
       }
 
@@ -474,14 +476,23 @@ export function ProjectSetupWizard() {
 
               {generatedData && (
                 <div className="space-y-4">
-                  <div className="space-y-2">
+                  <div className="flex items-center justify-between">
                     <label className="block text-sm font-semibold text-slate-900 dark:text-white">Descripción Aplicada</label>
-                    <Textarea
-                      value={generatedData}
-                      readOnly
-                      className="min-h-32 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 resize-none"
-                    />
+                    <Button
+                      onClick={() => setGeneratedData(null)}
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Borrar Descripción
+                    </Button>
                   </div>
+                  <Textarea
+                    value={generatedData}
+                    readOnly
+                    className="min-h-32 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 resize-none"
+                  />
                 </div>
               )}
             </div>
@@ -512,7 +523,7 @@ export function ProjectSetupWizard() {
 
           <Button
             onClick={currentStep === STEPS.length ? handleComplete : handleNextStep}
-            disabled={currentStep === STEPS.length ? isSaving || !generatedData : false}
+            disabled={currentStep === STEPS.length ? isSaving : false}
             className="min-w-28 bg-blue-600 hover:bg-blue-700 text-white"
           >
             {currentStep === STEPS.length ? (isSaving ? 'Guardando...' : 'Completar') : 'Siguiente'}

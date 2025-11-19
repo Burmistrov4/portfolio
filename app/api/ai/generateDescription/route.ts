@@ -48,13 +48,17 @@ ${conversationHistory.map((msg: any) => `${msg.role === 'user' ? 'Usuario' : 'As
     }
 
     prompt += `Instrucciones:
-- Crea una descripción profesional de 3 párrafos (Introducción, Características Clave, Conclusión)
+- Utiliza EXPLÍCITAMENTE la información proporcionada (Título, Tecnologías, Notas del desarrollador) para crear el contenido
+- Crea una descripción profesional de al menos 3 párrafos estructurada así:
+  * Párrafo 1: Introducción al proyecto usando el título y una visión general basada en las notas
+  * Párrafo 2: Características técnicas y tecnologías utilizadas
+  * Párrafo 3: Valor, impacto y conclusión del proyecto
 - Usa un tono profesional pero accesible
-- Incluye detalles técnicos relevantes
-- Enfatiza el valor y impacto del proyecto
+- Incluye detalles técnicos relevantes de las tecnologías especificadas
+- Enfatiza el valor y impacto del proyecto basado en las notas proporcionadas
 - Si es una conversación continua, mejora la descripción basada en el historial y el mensaje actual
 
-Responde con la descripción completa en español, sin formato JSON.`
+Responde ÚNICAMENTE con la descripción completa en español, sin formato JSON ni explicaciones adicionales.`
 
     const result = await model.generateContent(prompt)
     const response = await result.response
