@@ -29,12 +29,14 @@ export default async function Home() {
   // Load projects data
   let projects = []
   try {
-    const { data } = await supabase
-      .from('projects')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    projects = data || []
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/projects/public`, {
+      cache: 'no-store' // Ensure fresh data
+    })
+    if (response.ok) {
+      projects = await response.json()
+    } else {
+      console.error('Failed to fetch projects:', response.status, response.statusText)
+    }
   } catch (err) {
     console.error('Error fetching projects:', err)
   }
