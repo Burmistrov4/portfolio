@@ -53,6 +53,9 @@ export function ProjectSetupWizard() {
   const [formErrors, setFormErrors] = useState({ title: '' })
   const [isLoadingAI, setIsLoadingAI] = useState(false)
   const [isLoadingProjects, setIsLoadingProjects] = useState(true)
+  const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string}>>([])
+  const [currentMessage, setCurrentMessage] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
 
   useEffect(() => {
     loadProjects()
@@ -180,20 +183,40 @@ export function ProjectSetupWizard() {
     }
   }
 
-  const handleGenerateDescription = async () => {
-    setIsLoadingAI(true)
+  const handleSendMessage = async () => {
+    if (!currentMessage.trim()) return
+
+    const userMessage = currentMessage.trim()
+    setCurrentMessage('')
+    setChatMessages(prev => [...prev, { role: 'user', content: userMessage }])
+    setIsTyping(true)
+
     try {
       const response = await fetch('/api/ai/generateDescription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: formData.projectTitle, notes: formData.aiNotes })
+        body: JSON.stringify({
+          title: formData.projectTitle,
+          technologies: formData.technologies,
+          notes: formData.aiNotes,
+          userMessage,
+          conversationHistory: chatMessages
+        })
       })
       const data = await response.json()
-      setGeneratedData(data)
+      setChatMessages(prev => [...prev, { role: 'assistant', content: data.description }])
     } catch (error) {
-      console.error('Error generating description:', error)
+      console.error('Error sending message:', error)
+      setChatMessages(prev => [...prev, { role: 'assistant', content: 'Lo siento, hubo un error al generar la respuesta.' }])
     } finally {
-      setIsLoadingAI(false)
+      setIsTyping(false)
+    }
+  }
+
+  const handleApplyDescription = () => {
+    const lastAssistantMessage = chatMessages.filter(m => m.role === 'assistant').pop()
+    if (lastAssistantMessage) {
+      setGeneratedData(lastAssistantMessage.content)
     }
   }
 
@@ -379,23 +402,80 @@ export function ProjectSetupWizard() {
               <div className="text-center">
                 <Sparkles className="w-12 h-12 text-blue-600 mx-auto mb-4" />
                 <p className="text-slate-600 dark:text-slate-400 mb-6">
-                  Genera una descripción detallada de tu proyecto usando IA
+                  Chatea con IA para crear la descripción perfecta de tu proyecto
                 </p>
               </div>
-              <div className="flex justify-center">
+
+              {/* Chat Messages */}
+              <div className="space-y-4 max-h-96 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-lg p-4 bg-slate-50 dark:bg-slate-800">
+                {chatMessages.length === 0 && (
+                  <p className="text-center text-slate-500 dark:text-slate-400">
+                    Envía un mensaje para comenzar la conversación con IA
+                  </p>
+                )}
+                {chatMessages.map((message, index) => (
+                  <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                      message.role === 'user'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white'
+                    }`}>
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="bg-slate-200 dark:bg-slate-700 px-4 py-2 rounded-lg">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Chat Input */}
+              <div className="flex gap-2">
+                <Textarea
+                  value={currentMessage}
+                  onChange={(e) => setCurrentMessage(e.target.value)}
+                  placeholder="Describe lo que quieres en la descripción..."
+                  className="flex-1 min-h-20 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 resize-none"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      handleSendMessage()
+                    }
+                  }}
+                />
                 <Button
-                  onClick={handleGenerateDescription}
-                  disabled={isLoadingAI}
+                  onClick={handleSendMessage}
+                  disabled={!currentMessage.trim() || isTyping}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  {isLoadingAI && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isLoadingAI ? 'Generando...' : 'Generar Descripción con IA'}
+                  Enviar
                 </Button>
               </div>
+
+              {/* Apply Description Button */}
+              {chatMessages.some(m => m.role === 'assistant') && (
+                <div className="flex justify-center">
+                  <Button
+                    onClick={handleApplyDescription}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Aplicar Descripción
+                  </Button>
+                </div>
+              )}
+
               {generatedData && (
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-slate-900 dark:text-white">Descripción Generada</label>
+                    <label className="block text-sm font-semibold text-slate-900 dark:text-white">Descripción Aplicada</label>
                     <Textarea
                       value={generatedData}
                       readOnly
@@ -631,20 +711,20 @@ function ProjectDetailsForm({
         <p className="text-xs text-slate-500 dark:text-slate-400">Nombre descriptivo de tu proyecto</p>
       </div>
 
-      {/* GitHub URL */}
+      {/* Repository URL */}
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-slate-900 dark:text-white">Enlace a GitHub</label>
+        <label className="block text-sm font-semibold text-slate-900 dark:text-white">Enlace del Repositorio/Código</label>
         <div className="relative">
           <Github className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <Input
             name="githubUrl"
             value={formData.githubUrl}
             onChange={onInputChange}
-            placeholder="https://github.com/usuario/repositorio"
+            placeholder="https://github.com/usuario/repositorio o https://gitlab.com/..."
             className="pl-10 h-11 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
           />
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400">URL pública de tu repositorio de GitHub</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">URL pública de tu repositorio (GitHub, GitLab, etc.)</p>
       </div>
 
       {/* Demo URL */}
