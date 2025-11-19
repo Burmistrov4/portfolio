@@ -2,13 +2,25 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Github, LinkIcon, Zap, FileText, Sparkles, Loader2 } from "lucide-react"
+import { Github, LinkIcon, Zap, FileText, Sparkles, Loader2, Edit, Trash2, Plus } from "lucide-react"
+
+interface Project {
+  id: string
+  title: string
+  github_link: string
+  demo_link: string
+  technologies: string[]
+  ai_summary: string
+  ai_description: string
+  file_paths: string[]
+  created_at: string
+}
 
 const STEPS = [
   { id: 1, title: "Detalles", description: "Información básica del proyecto" },
@@ -22,6 +34,9 @@ const STEPS = [
  */
 export function ProjectSetupWizard() {
   const [currentStep, setCurrentStep] = useState(1)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [editingProject, setEditingProject] = useState<Project | null>(null)
+  const [isCreating, setIsCreating] = useState(false)
   const [formData, setFormData] = useState({
     projectTitle: "",
     githubUrl: "",
@@ -37,6 +52,79 @@ export function ProjectSetupWizard() {
   const [isUploading, setIsUploading] = useState(false)
   const [formErrors, setFormErrors] = useState({ title: '' })
   const [isLoadingAI, setIsLoadingAI] = useState(false)
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true)
+
+  useEffect(() => {
+    loadProjects()
+  }, [])
+
+  const loadProjects = async () => {
+    try {
+      const response = await fetch('/api/projects')
+      if (response.ok) {
+        const data = await response.json()
+        setProjects(data)
+      }
+    } catch (error) {
+      console.error('Error loading projects:', error)
+    } finally {
+      setIsLoadingProjects(false)
+    }
+  }
+
+  const handleStartCreating = () => {
+    setIsCreating(true)
+    setEditingProject(null)
+    resetForm()
+  }
+
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project)
+    setIsCreating(true)
+    setFormData({
+      projectTitle: project.title,
+      githubUrl: project.github_link,
+      demoUrl: project.demo_link,
+      technologies: project.technologies,
+      aiNotes: "",
+      filePaths: project.file_paths,
+    })
+    setGeneratedData(project.ai_description || project.ai_summary)
+    setCurrentStep(1)
+  }
+
+  const handleDeleteProject = async (projectId: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar este proyecto?')) return
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'DELETE'
+      })
+      if (response.ok) {
+        setProjects(projects.filter(p => p.id !== projectId))
+        alert('Proyecto eliminado exitosamente!')
+      } else {
+        alert('Error al eliminar el proyecto')
+      }
+    } catch (error) {
+      console.error('Error deleting project:', error)
+      alert('Error al eliminar el proyecto')
+    }
+  }
+
+  const resetForm = () => {
+    setFormData({
+      projectTitle: "",
+      githubUrl: "",
+      demoUrl: "",
+      technologies: [] as string[],
+      aiNotes: "",
+      filePaths: [] as string[],
+    })
+    setGeneratedData(null)
+    setCurrentStep(1)
+    setTechInput("")
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -144,28 +232,44 @@ export function ProjectSetupWizard() {
     if (!generatedData) return
     setIsSaving(true)
     try {
-      const response = await fetch('/api/projects/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: formData.projectTitle,
-          githubLink: formData.githubUrl,
-          demoLink: formData.demoUrl,
-          technologies: formData.technologies,
-          aiSummary: generatedData,
-          aiDescription: generatedData,
-          filePaths: formData.filePaths
+      const payload = {
+        title: formData.projectTitle,
+        github_link: formData.githubUrl,
+        demo_link: formData.demoUrl,
+        technologies: formData.technologies,
+        ai_summary: generatedData,
+        ai_description: generatedData,
+        file_paths: formData.filePaths
+      }
+
+      let response
+      if (editingProject) {
+        response = await fetch(`/api/projects/${editingProject.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         })
-      })
-      const result = await response.json()
-      if (result.success) {
-        alert('Proyecto guardado exitosamente!')
       } else {
-        alert('Error al guardar: ' + result.error)
+        response = await fetch('/api/projects/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+      }
+
+      const result = await response.json()
+      if (response.ok) {
+        alert(`Proyecto ${editingProject ? 'actualizado' : 'guardado'} exitosamente!`)
+        setIsCreating(false)
+        setEditingProject(null)
+        resetForm()
+        loadProjects() // Reload projects
+      } else {
+        alert(`Error al ${editingProject ? 'actualizar' : 'guardar'}: ` + result.error)
       }
     } catch (error) {
       console.error('Error saving:', error)
-      alert('Error al guardar el proyecto')
+      alert(`Error al ${editingProject ? 'actualizar' : 'guardar'} el proyecto`)
     } finally {
       setIsSaving(false)
     }
@@ -335,6 +439,92 @@ export function ProjectSetupWizard() {
           </Button>
         </div>
       </Card>
+    </div>
+  )
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <h1 className="text-4xl font-bold text-slate-900 dark:text-white text-balance">
+          Gestión de Proyectos
+        </h1>
+        <p className="text-slate-600 dark:text-slate-400 text-lg">Administra tus proyectos existentes</p>
+      </div>
+
+      {/* Create New Project Button */}
+      <div className="flex justify-center">
+        <Button onClick={handleStartCreating} className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Plus className="w-4 h-4 mr-2" />
+          Crear Nuevo Proyecto
+        </Button>
+      </div>
+
+      {/* Projects List */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {projects.map((project) => (
+          <Card key={project.id} className="border-slate-200 dark:border-slate-700 shadow-lg">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-slate-900 dark:text-white truncate">
+                {project.title}
+              </CardTitle>
+              <CardDescription className="text-slate-600 dark:text-slate-400">
+                {new Date(project.created_at).toLocaleDateString()}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap gap-1">
+                {project.technologies.slice(0, 3).map((tech) => (
+                  <Badge key={tech} variant="secondary" className="text-xs">
+                    {tech}
+                  </Badge>
+                ))}
+                {project.technologies.length > 3 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{project.technologies.length - 3}
+                  </Badge>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => handleEditProject(project)}
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <Edit className="w-3 h-3 mr-1" />
+                  Editar
+                </Button>
+                <Button
+                  onClick={() => handleDeleteProject(project.id)}
+                  size="sm"
+                  variant="destructive"
+                  className="flex-1"
+                >
+                  <Trash2 className="w-3 h-3 mr-1" />
+                  Eliminar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {projects.length === 0 && (
+        <div className="text-center py-12">
+          <FileText className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+            No hay proyectos aún
+          </h3>
+          <p className="text-slate-600 dark:text-slate-400 mb-6">
+            Crea tu primer proyecto para comenzar
+          </p>
+          <Button onClick={handleStartCreating} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Plus className="w-4 h-4 mr-2" />
+            Crear Proyecto
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
