@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
 
     let prompt = `Actúa como un Escritor de Contenido Profesional para Portafolios de Desarrollo.
 
