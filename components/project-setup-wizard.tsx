@@ -716,6 +716,7 @@ function ProjectDetailsForm({
           value={formData.projectTitle}
           onChange={onInputChange}
           placeholder="Ej: Mi Aplicación Web Increíble"
+          required
           className={`h-11 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 ${formErrors.title ? 'border-red-500' : ''}`}
         />
         {formErrors.title && <p className="text-xs text-red-500">{formErrors.title}</p>}

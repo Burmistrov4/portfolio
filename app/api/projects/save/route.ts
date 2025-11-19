@@ -23,19 +23,19 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { projectTitle, githubLink, demoLink, technologies, aiSummary, aiDescription, filePaths } = await request.json()
+    const { title, github_link, demo_link, technologies, ai_summary, ai_description, file_paths } = await request.json()
 
     const { data, error } = await supabase
       .from('projects')
       .insert([
         {
-          title: projectTitle,
-          github_link: githubLink,
-          demo_link: demoLink,
+          title,
+          github_link,
+          demo_link,
           technologies,
-          ai_summary: aiSummary,
-          ai_description: aiDescription,
-          file_paths: filePaths,
+          ai_summary,
+          ai_description,
+          file_paths,
         },
       ])
       .select()
