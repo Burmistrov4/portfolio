@@ -24,28 +24,74 @@ interface ProjectsSectionProps {
  */
 export function ProjectsSection({ projects }: ProjectsSectionProps) {
   const [selectedTech, setSelectedTech] = useState<string | null>(null)
-  const [ripples, setRipples] = useState<Array<{id: number, x: number, y: number}>>([])
+  const [waterDrops, setWaterDrops] = useState<Array<{
+    id: number,
+    x: number,
+    y: number,
+    vx: number,
+    vy: number,
+    life: number,
+    size: number
+  }>>([])
   const sectionRef = useRef<HTMLElement>(null)
 
-  const createRipple = (event: React.MouseEvent) => {
+  const createSplash = (event: React.MouseEvent) => {
     if (!sectionRef.current) return
 
     const rect = sectionRef.current.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
+    const clickX = event.clientX - rect.left
+    const clickY = event.clientY - rect.top
 
-    const newRipple = {
-      id: Date.now(),
-      x,
-      y
+    // Create realistic water splash with physics
+    const drops: Array<{
+      id: number,
+      x: number,
+      y: number,
+      vx: number,
+      vy: number,
+      life: number,
+      size: number
+    }> = []
+    const numDrops = 8 + Math.random() * 6 // 8-14 drops
+
+    for (let i = 0; i < numDrops; i++) {
+      const angle = (Math.PI * 2 * i) / numDrops + (Math.random() - 0.5) * 0.5
+      const speed = 50 + Math.random() * 100 // 50-150 pixels
+      const size = 2 + Math.random() * 3 // 2-5 pixels
+
+      drops.push({
+        id: Date.now() + i,
+        x: clickX,
+        y: clickY,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - Math.abs(Math.sin(angle)) * 30, // Upward bias
+        life: 1,
+        size
+      })
     }
 
-    setRipples(prev => [...prev, newRipple])
+    setWaterDrops(prev => [...prev, ...drops])
 
-    // Remove ripple after animation
+    // Animate physics
+    const animate = () => {
+      setWaterDrops(prev =>
+        prev.map(drop => ({
+          ...drop,
+          x: drop.x + drop.vx * 0.016, // 60fps
+          y: drop.y + drop.vy * 0.016,
+          vy: drop.vy + 300 * 0.016, // gravity
+          life: drop.life - 0.02,
+          vx: drop.vx * 0.98 // air resistance
+        })).filter(drop => drop.life > 0 && drop.y < rect.height + 50)
+      )
+    }
+
+    const interval = setInterval(animate, 16) // 60fps
+
     setTimeout(() => {
-      setRipples(prev => prev.filter(ripple => ripple.id !== newRipple.id))
-    }, 1000)
+      clearInterval(interval)
+      setWaterDrops(prev => prev.filter(drop => drop.id < Date.now() - 2000))
+    }, 2000)
   }
 
   // Get all unique technologies
@@ -69,7 +115,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
     <section
       ref={sectionRef}
       className="relative py-16 px-4 sm:px-8 overflow-hidden cursor-pointer"
-      onClick={createRipple}
+      onClick={createSplash}
       style={{
         background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.1) 50%, rgba(196, 181, 253, 0.1) 100%)',
         border: '2px solid transparent',
@@ -80,23 +126,29 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         position: 'relative'
       }}
     >
-      {/* Water Ripple Effects */}
-      {ripples.map((ripple) => (
+      {/* Realistic Water Splash Effects */}
+      {waterDrops.map((drop) => (
         <motion.div
-          key={ripple.id}
-          className="absolute pointer-events-none"
+          key={drop.id}
+          className="absolute pointer-events-none rounded-full"
           style={{
-            left: ripple.x - 50,
-            top: ripple.y - 50,
-            width: 100,
-            height: 100,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, rgba(147, 197, 253, 0.4) 50%, transparent 70%)',
-            zIndex: 1
+            left: drop.x - drop.size / 2,
+            top: drop.y - drop.size / 2,
+            width: drop.size,
+            height: drop.size,
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.8) 0%, rgba(147, 197, 253, 0.6) 50%, rgba(59, 130, 246, 0.3) 100%)',
+            boxShadow: '0 0 6px rgba(59, 130, 246, 0.8), 0 0 12px rgba(59, 130, 246, 0.6)',
+            zIndex: 1,
+            opacity: drop.life
           }}
-          initial={{ scale: 0, opacity: 1 }}
-          animate={{ scale: 4, opacity: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
+          animate={{
+            scale: [1, 0.8, 1.2],
+          }}
+          transition={{
+            duration: 0.1,
+            repeat: Infinity,
+            ease: "easeOut"
+          }}
         />
       ))}
 
@@ -146,27 +198,27 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         />
       </div>
 
-      {/* Enhanced Light Particles */}
+      {/* Optimized Light Particles */}
       <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(10)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 bg-blue-300/40 rounded-full shadow-lg"
+            className="absolute w-1.5 h-1.5 bg-blue-300/50 rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              boxShadow: '0 0 10px rgba(59, 130, 246, 0.6), 0 0 20px rgba(59, 130, 246, 0.4)',
+              boxShadow: '0 0 8px rgba(59, 130, 246, 0.8), 0 0 16px rgba(59, 130, 246, 0.6)',
             }}
             animate={{
-              y: [-40, 40, -40],
-              x: [-20, 20, -20],
-              opacity: [0.2, 0.8, 0.2],
-              scale: [0.8, 1.2, 0.8],
+              y: [-25, 25, -25],
+              x: [-10, 10, -10],
+              opacity: [0.3, 0.9, 0.3],
+              scale: [0.9, 1.1, 0.9],
             }}
             transition={{
-              duration: 6 + Math.random() * 4,
+              duration: 8 + Math.random() * 3,
               repeat: Infinity,
-              delay: Math.random() * 3,
+              delay: Math.random() * 2,
               ease: "easeInOut"
             }}
           />
