@@ -8,6 +8,7 @@ import supabase from '@/lib/supabase'
  */
 export async function POST(request: NextRequest) {
   try {
+    const requestData = await request.json()
     const {
       full_name,
       professional_title,
@@ -16,30 +17,33 @@ export async function POST(request: NextRequest) {
       github_url,
       profile_image_url,
       cv_pdf_url
-    } = await request.json()
+    } = requestData
 
-    // Get current profile to get old URLs
+    // Get current profile data for merging
     const { data: currentProfile } = await supabase
       .from('profile')
-      .select('profile_image_url, cv_pdf_url')
+      .select('*')
       .eq('id', 1)
       .single()
 
     const oldImageUrl = currentProfile?.profile_image_url
     const oldCvUrl = currentProfile?.cv_pdf_url
 
+    // Merge new data with existing data - preserve existing values when new ones are null/undefined
+    const mergedData = {
+      id: 1,
+      full_name: full_name !== undefined ? full_name : currentProfile?.full_name,
+      professional_title: professional_title !== undefined ? professional_title : currentProfile?.professional_title,
+      bio: bio !== undefined ? bio : currentProfile?.bio,
+      linkedin_url: linkedin_url !== undefined ? linkedin_url : currentProfile?.linkedin_url,
+      github_url: github_url !== undefined ? github_url : currentProfile?.github_url,
+      profile_image_url: profile_image_url !== undefined && profile_image_url !== null && profile_image_url !== '' ? profile_image_url : currentProfile?.profile_image_url,
+      cv_pdf_url: cv_pdf_url !== undefined && cv_pdf_url !== null && cv_pdf_url !== '' ? cv_pdf_url : currentProfile?.cv_pdf_url
+    }
+
     const { data, error } = await supabase
       .from('profile')
-      .upsert({
-        id: 1,
-        full_name,
-        professional_title,
-        bio,
-        linkedin_url,
-        github_url,
-        profile_image_url,
-        cv_pdf_url
-      }, {
+      .upsert(mergedData, {
         onConflict: 'id'
       })
       .select()
@@ -49,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Delete old image file if exists and different from new
-    if (oldImageUrl && oldImageUrl !== profile_image_url) {
+    if (oldImageUrl && oldImageUrl !== mergedData.profile_image_url) {
       const oldImageFilename = decodeURIComponent(oldImageUrl.split('/').pop())
       if (oldImageFilename) {
         await supabase.storage.from('profile').remove([oldImageFilename])
@@ -57,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Delete old CV file if exists and different from new
-    if (oldCvUrl && oldCvUrl !== cv_pdf_url) {
+    if (oldCvUrl && oldCvUrl !== mergedData.cv_pdf_url) {
       const oldCvFilename = decodeURIComponent(oldCvUrl.split('/').pop())
       if (oldCvFilename) {
         await supabase.storage.from('profile').remove([oldCvFilename])
