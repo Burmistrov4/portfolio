@@ -28,11 +28,7 @@ export default function EditCertificatePage({ params }: { params: { id: string }
   const [isSaving, setIsSaving] = useState(false)
   const [formErrors, setFormErrors] = useState({ title: '' })
 
-  useEffect(() => {
-    fetchCertificate()
-  }, [params.id])
-
-  const fetchCertificate = async () => {
+  const fetchCertificate = useCallback(async () => {
     try {
       const response = await fetch(`/api/certificates/${params.id}`)
       const data = await response.json()
@@ -56,7 +52,11 @@ export default function EditCertificatePage({ params }: { params: { id: string }
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [params.id, router])
+
+  useEffect(() => {
+    fetchCertificate()
+  }, [fetchCertificate])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
