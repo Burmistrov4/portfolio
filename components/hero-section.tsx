@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { FileText, Github, Linkedin, Download, Sparkles, Sun, Moon } from 'lucide-react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useTheme } from 'next-themes'
 
 interface Profile {
@@ -32,7 +32,12 @@ export function HeroSection({ profile }: HeroSectionProps) {
   const [bgClicked, setBgClicked] = useState({ radial: false, blue: false, purple: false, cyan: false })
   const [ripples, setRipples] = useState<{id: number, x: number, y: number}[]>([])
   const [scatterParticles, setScatterParticles] = useState(false)
+  const [typedText, setTypedText] = useState('')
+  const [isTyping, setIsTyping] = useState(true)
   const { theme, setTheme } = useTheme()
+
+  // Typing effect for professional title
+  const fullText = useMemo(() => profile?.professional_title || 'Analista de Sistemas', [profile])
 
   // Temporary hardcoded URLs for testing
   const testImageUrl = 'https://vnxplxyexntbcikjuxhg.supabase.co/storage/v1/object/public/profile/151fba6b-d3ae-470b-af73-29bba50d42e3-IMG_20240728_212519-removebg-preview.png'
@@ -49,8 +54,30 @@ export function HeroSection({ profile }: HeroSectionProps) {
     return () => clearTimeout(timer)
   }, [])
 
+  // Typing effect
+  useEffect(() => {
+    if (!showMain) return
+
+    let index = 0
+    const typeWriter = () => {
+      if (index < fullText.length) {
+        setTypedText(fullText.slice(0, index + 1))
+        index++
+        setTimeout(typeWriter, 100) // Typing speed
+      } else {
+        setIsTyping(false)
+      }
+    }
+
+    const startTyping = setTimeout(() => {
+      typeWriter()
+    }, 1200) // Delay before starting typing
+
+    return () => clearTimeout(startTyping)
+  }, [showMain, fullText])
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0D1117]">
       {/* Theme Toggle */}
       <div className="absolute top-4 right-4 z-20">
         <Button
@@ -265,7 +292,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
 
               {/* Profile Info */}
               <motion.div
-                className="flex-1 text-white"
+                className="flex-1 text-[#F0F6FC]"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
@@ -280,16 +307,19 @@ export function HeroSection({ profile }: HeroSectionProps) {
                 </motion.h1>
 
                 <motion.h2
-                  className="text-2xl lg:text-3xl font-light mb-8 text-blue-200"
+                  className="text-2xl lg:text-3xl font-light mb-8 text-[#00FFFF] relative"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8, delay: 0.8 }}
                 >
-                  {profile?.professional_title || 'Analista de Sistemas'}
+                  {typedText}
+                  {isTyping && (
+                    <span className="inline-block w-0.5 h-8 bg-[#00FFFF] ml-1 animate-pulse"></span>
+                  )}
                 </motion.h2>
 
                 <motion.p
-                  className="text-lg lg:text-xl leading-relaxed mb-12 text-gray-300 max-w-3xl mx-auto lg:mx-0"
+                  className="text-lg lg:text-xl leading-relaxed mb-12 text-[#8B949E] max-w-3xl mx-auto lg:mx-0"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8, delay: 1 }}
@@ -312,7 +342,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
                       <Button
                         asChild
                         size="lg"
-                        className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 shadow-lg hover:shadow-blue-500/25 px-8 py-4 text-lg font-semibold"
+                        className="bg-[#0078FF] hover:bg-[#0056CC] text-[#F0F6FC] border border-[#0078FF] shadow-lg hover:shadow-[#0078FF]/25 px-8 py-4 text-lg font-medium transition-all duration-300"
                       >
                         <a
                           href={profile.linkedin_url}
@@ -336,7 +366,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
                       <Button
                         asChild
                         size="lg"
-                        className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 shadow-lg hover:shadow-gray-500/25 px-8 py-4 text-lg font-semibold"
+                        className="bg-[#161B22] hover:bg-[#21262D] text-[#F0F6FC] border border-[#30363D] shadow-lg hover:shadow-[#30363D]/25 px-8 py-4 text-lg font-medium transition-all duration-300"
                       >
                         <a
                           href={profile.github_url}
@@ -358,7 +388,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
                     <Button
                       asChild
                       size="lg"
-                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border border-green-500 shadow-lg hover:shadow-green-500/25 px-8 py-4 text-lg font-semibold"
+                      className="bg-[#00FFFF] hover:bg-[#00CCCC] text-[#0D1117] border border-[#00FFFF] shadow-lg hover:shadow-[#00FFFF]/25 px-8 py-4 text-lg font-medium transition-all duration-300"
                     >
                       <a
                         href={displayCvUrl}

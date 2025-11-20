@@ -1,83 +1,84 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color scheme for modern admin dashboard */
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.48 0.18 263.1);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.92 0.02 263.1);
-  --secondary-foreground: oklch(0.25 0.02 263.1);
-  --muted: oklch(0.92 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.48 0.18 263.1);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.95 0 0);
-  --ring: oklch(0.48 0.18 263.1);
-  --chart-1: oklch(0.48 0.18 263.1);
-  --chart-2: oklch(0.646 0.222 41.116);
-  --chart-3: oklch(0.6 0.118 184.704);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.48 0.18 263.1);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.92 0.02 263.1);
-  --sidebar-accent-foreground: oklch(0.25 0.02 263.1);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.48 0.18 263.1);
+  /* Sony-inspired color palette - Light mode */
+  --background: #0D1117;
+  --foreground: #F0F6FC;
+  --card: #161B22;
+  --card-foreground: #F0F6FC;
+  --popover: #161B22;
+  --popover-foreground: #F0F6FC;
+  --primary: #0078FF;
+  --primary-foreground: #F0F6FC;
+  --secondary: #21262D;
+  --secondary-foreground: #F0F6FC;
+  --muted: #21262D;
+  --muted-foreground: #8B949E;
+  --accent: #00FFFF;
+  --accent-foreground: #0D1117;
+  --destructive: #DA3633;
+  --destructive-foreground: #F0F6FC;
+  --border: #30363D;
+  --input: #21262D;
+  --ring: #0078FF;
+  --chart-1: #0078FF;
+  --chart-2: #00FFFF;
+  --chart-3: #FF6B6B;
+  --chart-4: #4ECDC4;
+  --chart-5: #45B7D1;
+  --radius: 0.5rem;
+  --sidebar: #161B22;
+  --sidebar-foreground: #F0F6FC;
+  --sidebar-primary: #0078FF;
+  --sidebar-primary-foreground: #F0F6FC;
+  --sidebar-accent: #21262D;
+  --sidebar-accent-foreground: #F0F6FC;
+  --sidebar-border: #30363D;
+  --sidebar-ring: #0078FF;
 }
 
 .dark {
-  /* Cyberpunk/Tech color palette */
-  --background: #000000;
-  --foreground: oklch(0.985 0 0);
-  --card: #0f0f0f;
-  --card-foreground: oklch(0.985 0 0);
-  --popover: #0f0f0f;
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: #00FFFF;
-  --primary-foreground: #000000;
-  --secondary: #1a1a1a;
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: #1a1a1a;
-  --muted-foreground: oklch(0.708 0 0);
+  /* Sony-inspired dark mode - same as root for consistency */
+  --background: #0D1117;
+  --foreground: #F0F6FC;
+  --card: #161B22;
+  --card-foreground: #F0F6FC;
+  --popover: #161B22;
+  --popover-foreground: #F0F6FC;
+  --primary: #0078FF;
+  --primary-foreground: #F0F6FC;
+  --secondary: #21262D;
+  --secondary-foreground: #F0F6FC;
+  --muted: #21262D;
+  --muted-foreground: #8B949E;
   --accent: #00FFFF;
-  --accent-foreground: #000000;
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: #333333;
-  --input: #1a1a1a;
-  --ring: #00FFFF;
-  --chart-1: #00FFFF;
-  --chart-2: #6700FF;
-  --chart-3: #FF0080;
-  --chart-4: #00FF80;
-  --chart-5: #FFFF00;
-  --sidebar: #0f0f0f;
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: #00FFFF;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #1a1a1a;
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: #333333;
-  --sidebar-ring: #00FFFF;
+  --accent-foreground: #0D1117;
+  --destructive: #DA3633;
+  --destructive-foreground: #F0F6FC;
+  --border: #30363D;
+  --input: #21262D;
+  --ring: #0078FF;
+  --chart-1: #0078FF;
+  --chart-2: #00FFFF;
+  --chart-3: #FF6B6B;
+  --chart-4: #4ECDC4;
+  --chart-5: #45B7D1;
+  --sidebar: #161B22;
+  --sidebar-foreground: #F0F6FC;
+  --sidebar-primary: #0078FF;
+  --sidebar-primary-foreground: #F0F6FC;
+  --sidebar-accent: #21262D;
+  --sidebar-accent-foreground: #F0F6FC;
+  --sidebar-border: #30363D;
+  --sidebar-ring: #0078FF;
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
+  --font-sans: "Inter", "Geist", "Geist Fallback";
   --font-mono: "Geist Mono", "Geist Mono Fallback";
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -123,6 +124,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   }
 }
 

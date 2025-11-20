@@ -192,15 +192,15 @@ export function CertificatesSection() {
   
         <div className="relative z-10 max-w-6xl mx-auto">
           <motion.h2
-            className="text-4xl font-bold text-center mb-12 text-slate-900 dark:text-white"
+            className="text-4xl font-bold text-center mb-12 text-[#F0F6FC]"
             style={{
-              textShadow: '0 0 20px rgba(16, 185, 129, 0.5), 0 0 40px rgba(16, 185, 129, 0.3)',
+              textShadow: '0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3)',
             }}
             animate={{
               textShadow: [
-                '0 0 20px rgba(16, 185, 129, 0.5), 0 0 40px rgba(16, 185, 129, 0.3)',
-                '0 0 25px rgba(5, 150, 105, 0.6), 0 0 50px rgba(5, 150, 105, 0.4)',
-                '0 0 20px rgba(16, 185, 129, 0.5), 0 0 40px rgba(16, 185, 129, 0.3)'
+                '0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3)',
+                '0 0 25px rgba(0, 120, 255, 0.6), 0 0 50px rgba(0, 120, 255, 0.4)',
+                '0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3)'
               ]
             }}
             transition={{
@@ -240,11 +240,11 @@ export function CertificatesSection() {
       className="relative py-16 px-4 sm:px-8 overflow-hidden cursor-pointer"
       onClick={createSplash}
       style={{
-        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 50%, rgba(20, 184, 166, 0.1) 100%)',
+        background: '#0D1117',
         border: '2px solid transparent',
-        borderImage: 'linear-gradient(45deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3), rgba(20, 184, 166, 0.3)) 1',
+        borderImage: 'linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(0, 120, 255, 0.2)) 1',
         borderRadius: '0.5rem',
-        boxShadow: '0 0 40px rgba(16, 185, 129, 0.2), inset 0 0 40px rgba(16, 185, 129, 0.1)',
+        boxShadow: '0 0 40px rgba(0, 255, 255, 0.1), inset 0 0 40px rgba(0, 255, 255, 0.05)',
         backdropFilter: 'blur(10px)',
         position: 'relative'
       }}

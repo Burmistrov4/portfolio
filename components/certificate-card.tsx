@@ -24,50 +24,60 @@ const cardVariants = {
 
 export function CertificateCard({ certificate }: { certificate: Certificate }) {
   return (
-    <motion.div variants={cardVariants}>
-      <Card className="h-full hover:shadow-lg transition-shadow flex flex-col">
-      <CardHeader className="flex-shrink-0">
-        <CardTitle className="text-xl flex items-center gap-2">
-          <FileText className="w-5 h-5 text-blue-600" />
-          {certificate.title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex-grow space-y-4">
-        <CardDescription className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
-          {certificate.description}
-        </CardDescription>
+    <motion.div
+      variants={cardVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-50px" }}
+      whileHover={{
+        y: -8,
+        transition: { duration: 0.3, ease: "easeOut" }
+      }}
+      className="h-full"
+    >
+      <Card className="h-full flex flex-col border-2 border-transparent hover:border-[#0078FF] transition-all duration-300 hover:shadow-2xl hover:shadow-[#0078FF]/20 bg-[#161B22] text-[#F0F6FC]">
+        <CardHeader className="flex-shrink-0">
+          <CardTitle className="text-xl flex items-center gap-2 text-[#F0F6FC]">
+            <FileText className="w-5 h-5 text-[#0078FF]" />
+            {certificate.title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-grow space-y-4">
+          <CardDescription className="text-sm text-[#8B949E] line-clamp-3">
+            {certificate.description}
+          </CardDescription>
 
-        {certificate.technologies?.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {certificate.technologies.map((tech) => (
-              <Badge key={tech} variant="secondary" className="text-xs">
-                {tech}
-              </Badge>
-            ))}
-          </div>
-        )}
+          {certificate.technologies?.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {certificate.technologies.map((tech) => (
+                <Badge key={tech} variant="secondary" className="text-xs bg-[#21262D] text-[#F0F6FC] border-[#30363D]">
+                  {tech}
+                </Badge>
+              ))}
+            </div>
+          )}
 
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Button
-            asChild
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white border border-blue-500 shadow-lg hover:shadow-blue-500/25 px-6 py-3 text-lg font-semibold"
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            <a
-              href={certificate.cert_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3"
+            <Button
+              asChild
+              className="w-full bg-[#0078FF] hover:bg-[#0056CC] text-[#F0F6FC] border border-[#0078FF] shadow-lg hover:shadow-[#0078FF]/25 px-6 py-3 text-base font-medium transition-all duration-300"
             >
-              <FileText className="w-5 h-5" />
-              Ver Certificado
-            </a>
-          </Button>
-        </motion.div>
-      </CardContent>
-    </Card>
+              <a
+                href={certificate.cert_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-3"
+              >
+                <FileText className="w-4 h-4" />
+                Ver Certificado
+              </a>
+            </Button>
+          </motion.div>
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }

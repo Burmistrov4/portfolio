@@ -77,11 +77,11 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       className="relative py-16 px-4 sm:px-8 overflow-hidden cursor-pointer"
       onClick={createSplash}
       style={{
-        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.1) 50%, rgba(196, 181, 253, 0.1) 100%)',
+        background: '#0D1117',
         border: '2px solid transparent',
-        borderImage: 'linear-gradient(45deg, rgba(59, 130, 246, 0.3), rgba(147, 197, 253, 0.3), rgba(196, 181, 253, 0.3)) 1',
+        borderImage: 'linear-gradient(45deg, rgba(0, 120, 255, 0.3), rgba(0, 255, 255, 0.2)) 1',
         borderRadius: '0.5rem',
-        boxShadow: '0 0 40px rgba(59, 130, 246, 0.2), inset 0 0 40px rgba(59, 130, 246, 0.1)',
+        boxShadow: '0 0 40px rgba(0, 120, 255, 0.1), inset 0 0 40px rgba(0, 120, 255, 0.05)',
         backdropFilter: 'blur(10px)',
         position: 'relative'
       }}
@@ -135,15 +135,15 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
 
       <div className="relative z-10 max-w-6xl mx-auto">
         <motion.h2
-          className="text-4xl font-bold text-center mb-12 text-slate-900 dark:text-white"
+          className="text-4xl font-bold text-center mb-12 text-[#F0F6FC]"
           style={{
-            textShadow: '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3)',
+            textShadow: '0 0 20px rgba(0, 120, 255, 0.5), 0 0 40px rgba(0, 120, 255, 0.3)',
           }}
           animate={{
             textShadow: [
-              '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3)',
-              '0 0 25px rgba(147, 197, 253, 0.6), 0 0 50px rgba(147, 197, 253, 0.4)',
-              '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3)'
+              '0 0 20px rgba(0, 120, 255, 0.5), 0 0 40px rgba(0, 120, 255, 0.3)',
+              '0 0 25px rgba(0, 255, 255, 0.6), 0 0 50px rgba(0, 255, 255, 0.4)',
+              '0 0 20px rgba(0, 120, 255, 0.5), 0 0 40px rgba(0, 120, 255, 0.3)'
             ]
           }}
           transition={{
