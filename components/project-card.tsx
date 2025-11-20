@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
@@ -68,9 +69,30 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <CardTitle className="text-xl text-card-foreground">{project.title}</CardTitle>
           </CardHeader>
           <CardContent className="flex-grow">
-            <CardDescription className="text-sm text-muted-foreground line-clamp-3">
+            <CardDescription className="text-sm text-muted-foreground line-clamp-3 mb-3">
               {project.ai_summary}
             </CardDescription>
+            {project.technologies && project.technologies.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {project.technologies.slice(0, 3).map((tech, index) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="text-xs px-2 py-0.5 bg-secondary/50 text-secondary-foreground border-secondary-foreground/20"
+                  >
+                    {tech}
+                  </Badge>
+                ))}
+                {project.technologies.length > 3 && (
+                  <Badge
+                    variant="secondary"
+                    className="text-xs px-2 py-0.5 bg-secondary/50 text-secondary-foreground border-secondary-foreground/20"
+                  >
+                    +{project.technologies.length - 3}
+                  </Badge>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </Link>

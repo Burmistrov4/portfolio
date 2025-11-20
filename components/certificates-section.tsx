@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { CertificateCard } from '@/components/certificate-card'
+import { Badge } from '@/components/ui/badge'
 import supabase from '@/lib/supabase-client'
 import { motion } from 'framer-motion'
 
@@ -21,6 +22,7 @@ export function CertificatesSection() {
   const [certificates, setCertificates] = useState<Certificate[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedTech, setSelectedTech] = useState<string | null>(null)
   const [ripples, setRipples] = useState<Array<{
     id: number,
     x: number,
@@ -77,6 +79,23 @@ export function CertificatesSection() {
 
     fetchCertificates()
   }, [])
+
+  // Get all unique technologies
+  const allTechnologies = useMemo(() => {
+    const techSet = new Set<string>()
+    certificates.forEach(certificate => {
+      certificate.technologies?.forEach(tech => techSet.add(tech))
+    })
+    return Array.from(techSet).sort()
+  }, [certificates])
+
+  // Filter certificates based on selected technology
+  const filteredCertificates = useMemo(() => {
+    if (!selectedTech) return certificates
+    return certificates.filter(certificate =>
+      certificate.technologies?.includes(selectedTech)
+    )
+  }, [certificates, selectedTech])
 
   if (loading) {
     return (
@@ -240,11 +259,11 @@ export function CertificatesSection() {
       className="relative py-16 px-4 sm:px-8 overflow-hidden cursor-pointer"
       onClick={createSplash}
       style={{
-        background: 'transparent',
+        background: '#161B22',
         border: '2px solid transparent',
-        borderImage: 'linear-gradient(45deg, hsl(var(--accent) / 0.3), hsl(var(--primary) / 0.2)) 1',
+        borderImage: 'linear-gradient(45deg, #0078FF 0.3, #0078FF 0.2) 1',
         borderRadius: '0.5rem',
-        boxShadow: '0 0 40px hsl(var(--accent) / 0.1), inset 0 0 40px hsl(var(--accent) / 0.05)',
+        boxShadow: '0 0 40px rgba(0, 120, 255, 0.1), inset 0 0 40px rgba(0, 120, 255, 0.05)',
         backdropFilter: 'blur(10px)',
         position: 'relative'
       }}
@@ -351,7 +370,30 @@ export function CertificatesSection() {
           Mis Certificados
         </motion.h2>
 
-        {certificates.length > 0 ? (
+        {/* Technology Filter */}
+        {allTechnologies.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-2 mb-12">
+            <Badge
+              variant={selectedTech === null ? "default" : "secondary"}
+              className="cursor-pointer px-4 py-2 text-sm"
+              onClick={() => setSelectedTech(null)}
+            >
+              Todos
+            </Badge>
+            {allTechnologies.map(tech => (
+              <Badge
+                key={tech}
+                variant={selectedTech === tech ? "default" : "secondary"}
+                className="cursor-pointer px-4 py-2 text-sm"
+                onClick={() => setSelectedTech(selectedTech === tech ? null : tech)}
+              >
+                {tech}
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        {filteredCertificates.length > 0 ? (
           <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             variants={{
@@ -367,14 +409,17 @@ export function CertificatesSection() {
             whileInView="visible"
             viewport={{ once: true }}
           >
-            {certificates.map((certificate) => (
+            {filteredCertificates.map((certificate) => (
               <CertificateCard key={certificate.id} certificate={certificate} />
             ))}
           </motion.div>
         ) : (
           <div className="text-center py-12">
             <p className="text-slate-600 dark:text-slate-400 text-lg">
-              No hay certificados disponibles
+              {selectedTech
+                ? `No hay certificados con la tecnología "${selectedTech}"`
+                : "No hay certificados disponibles"
+              }
             </p>
           </div>
         )}

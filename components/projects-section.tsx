@@ -77,11 +77,11 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       className="relative py-16 px-4 sm:px-8 overflow-hidden cursor-pointer"
       onClick={createSplash}
       style={{
-        background: 'transparent',
+        background: '#161B22',
         border: '2px solid transparent',
-        borderImage: 'linear-gradient(45deg, hsl(var(--primary) / 0.3), hsl(var(--accent) / 0.2)) 1',
+        borderImage: 'linear-gradient(45deg, #0078FF 0.3, #0078FF 0.2) 1',
         borderRadius: '0.5rem',
-        boxShadow: '0 0 40px hsl(var(--primary) / 0.1), inset 0 0 40px hsl(var(--primary) / 0.05)',
+        boxShadow: '0 0 40px rgba(0, 120, 255, 0.1), inset 0 0 40px rgba(0, 120, 255, 0.05)',
         backdropFilter: 'blur(10px)',
         position: 'relative'
       }}
