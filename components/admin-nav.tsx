@@ -50,6 +50,20 @@ export function AdminNav() {
               </Button>
             </Link>
 
+            <Link href="/admin/projects">
+              <Button variant="ghost" className="text-white hover:bg-slate-800">
+                <FileText className="w-4 h-4 mr-2" />
+                Proyectos
+              </Button>
+            </Link>
+
+            <Link href="/admin/certificates">
+              <Button variant="ghost" className="text-white hover:bg-slate-800">
+                <FileText className="w-4 h-4 mr-2" />
+                Certificados
+              </Button>
+            </Link>
+
             <Link href="/admin/setup-wizard">
               <Button variant="ghost" className="text-white hover:bg-slate-800">
                 <FileText className="w-4 h-4 mr-2" />
