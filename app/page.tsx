@@ -41,13 +41,11 @@ export default async function Home() {
     if (error) {
       console.error('Error fetching projects:', error)
     } else {
-      // Process projects to generate proper image URLs
+      // Process projects
       projects = (data || []).map(project => ({
         ...project,
-        // Generate public URLs for images stored in project-files bucket
-        file_paths: project.file_paths?.map((filePath: string) =>
-          supabase.storage.from('project-files').getPublicUrl(filePath).data.publicUrl
-        ) || [],
+        // file_paths are already public URLs from upload
+        file_paths: project.file_paths || [],
         // Ensure links are properly handled
         github_link: project.github_link || null,
         demo_link: project.demo_link || null,

@@ -150,7 +150,8 @@ export default function ProjectsManagementPage() {
                   <div className="flex items-center gap-2 ml-4">
                     <Link href={`/admin/projects/edit/${project.id}`}>
                       <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4" />
+                        <Edit className="h-4 w-4 mr-2" />
+                        Editar
                       </Button>
                     </Link>
                     <Button
