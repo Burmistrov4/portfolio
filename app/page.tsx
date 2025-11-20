@@ -29,13 +29,25 @@ export default async function Home() {
   // Load projects data
   let projects = []
   try {
-    const response = await fetch('/api/projects/public', {
-      cache: 'no-store' // Ensure fresh data
-    })
-    if (response.ok) {
-      projects = await response.json()
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching projects:', error)
     } else {
-      console.error('Failed to fetch projects:', response.status, response.statusText)
+      // Process projects to generate proper image URLs
+      projects = (data || []).map(project => ({
+        ...project,
+        // Generate public URLs for images stored in project-files bucket
+        file_paths: project.file_paths?.map((filePath: string) =>
+          supabase.storage.from('project-files').getPublicUrl(filePath).data.publicUrl
+        ) || [],
+        // Ensure links are properly handled
+        github_link: project.github_link || null,
+        demo_link: project.demo_link || null,
+      }))
     }
   } catch (err) {
     console.error('Error fetching projects:', err)
