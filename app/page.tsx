@@ -29,7 +29,7 @@ export default async function Home() {
   // Load projects data
   let projects = []
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/projects/public`, {
+    const response = await fetch('/api/projects/public', {
       cache: 'no-store' // Ensure fresh data
     })
     if (response.ok) {
