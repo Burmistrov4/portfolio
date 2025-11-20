@@ -6,8 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Loader2, User, FileText } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Loader2, User, FileText, FolderOpen } from 'lucide-react'
 import Image from 'next/image'
+import { FileManager } from '@/components/file-manager'
 
 interface ProfileData {
   full_name: string
@@ -39,6 +41,8 @@ export default function ProfilePage() {
   const [isUploadingCV, setIsUploadingCV] = useState(false)
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const [selectedCVFile, setSelectedCVFile] = useState<File | null>(null)
+  const [selectedExistingImage, setSelectedExistingImage] = useState<any>(null)
+  const [selectedExistingCV, setSelectedExistingCV] = useState<any>(null)
 
   useEffect(() => {
     loadProfile()
@@ -234,69 +238,126 @@ export default function ProfilePage() {
             />
           </div>
 
-          {/* Profile Image Upload */}
+          {/* Profile Image */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-slate-900 dark:text-white">
               Foto de Perfil
             </label>
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  setSelectedImageFile(e.target.files[0])
-                  handleFileUpload(e.target.files, 'image')
-                }
-              }}
-              disabled={isUploadingImage}
-              className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
-            {isUploadingImage && (
-              <div className="flex items-center gap-2 text-blue-600">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <p>Subiendo imagen...</p>
-              </div>
-            )}
-            {(selectedImageFile || profileData.profile_image_url) && (
+            <Tabs defaultValue="upload" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="upload">Subir Nueva</TabsTrigger>
+                <TabsTrigger value="select">Seleccionar Existente</TabsTrigger>
+              </TabsList>
+              <TabsContent value="upload" className="space-y-2">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setSelectedImageFile(e.target.files[0])
+                      setSelectedExistingImage(null) // Clear existing selection
+                      handleFileUpload(e.target.files, 'image')
+                    }
+                  }}
+                  disabled={isUploadingImage}
+                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+                {isUploadingImage && (
+                  <div className="flex items-center gap-2 text-blue-600">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <p>Subiendo imagen...</p>
+                  </div>
+                )}
+              </TabsContent>
+              <TabsContent value="select" className="space-y-2">
+                <FileManager
+                  title="Seleccionar Imagen de Perfil"
+                  selectedFile={selectedExistingImage}
+                  onFileSelect={(file) => {
+                    setSelectedExistingImage(file)
+                    setSelectedImageFile(null) // Clear new upload
+                    if (file) {
+                      setProfileData(prev => ({ ...prev, profile_image_url: file.url }))
+                    }
+                  }}
+                />
+              </TabsContent>
+            </Tabs>
+            {(selectedImageFile || selectedExistingImage || profileData.profile_image_url) && (
               <div className="mt-2">
                 <Image
-                  src={selectedImageFile ? URL.createObjectURL(selectedImageFile) : (profileData.profile_image_url || '')}
+                  src={
+                    selectedImageFile
+                      ? URL.createObjectURL(selectedImageFile)
+                      : selectedExistingImage
+                        ? selectedExistingImage.url
+                        : (profileData.profile_image_url || '')
+                  }
                   alt="Profile"
                   width={80}
                   height={80}
                   className="w-20 h-20 rounded-full object-cover"
+                  unoptimized
                 />
               </div>
             )}
           </div>
 
-          {/* CV Upload */}
+          {/* CV */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-slate-900 dark:text-white">
               CV en PDF
             </label>
-            <Input
-              type="file"
-              accept=".pdf"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  setSelectedCVFile(e.target.files[0])
-                  handleFileUpload(e.target.files, 'cv')
-                }
-              }}
-              disabled={isUploadingCV}
-              className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            />
-            {isUploadingCV && (
-              <div className="flex items-center gap-2 text-blue-600">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <p>Subiendo CV...</p>
-              </div>
-            )}
-            {profileData.cv_pdf_url && (
+            <Tabs defaultValue="upload" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="upload">Subir Nuevo</TabsTrigger>
+                <TabsTrigger value="select">Seleccionar Existente</TabsTrigger>
+              </TabsList>
+              <TabsContent value="upload" className="space-y-2">
+                <Input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setSelectedCVFile(e.target.files[0])
+                      setSelectedExistingCV(null) // Clear existing selection
+                      handleFileUpload(e.target.files, 'cv')
+                    }
+                  }}
+                  disabled={isUploadingCV}
+                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+                {isUploadingCV && (
+                  <div className="flex items-center gap-2 text-blue-600">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <p>Subiendo CV...</p>
+                  </div>
+                )}
+              </TabsContent>
+              <TabsContent value="select" className="space-y-2">
+                <FileManager
+                  title="Seleccionar CV"
+                  selectedFile={selectedExistingCV}
+                  onFileSelect={(file) => {
+                    setSelectedExistingCV(file)
+                    setSelectedCVFile(null) // Clear new upload
+                    if (file) {
+                      setProfileData(prev => ({ ...prev, cv_pdf_url: file.url }))
+                    }
+                  }}
+                />
+              </TabsContent>
+            </Tabs>
+            {(selectedCVFile || selectedExistingCV || profileData.cv_pdf_url) && (
               <div className="mt-2">
                 <a
-                  href={profileData.cv_pdf_url}
+                  href={
+                    selectedCVFile
+                      ? URL.createObjectURL(selectedCVFile)
+                      : selectedExistingCV
+                        ? selectedExistingCV.url
+                        : (profileData.cv_pdf_url || '')
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-blue-600 hover:underline"
@@ -322,6 +383,29 @@ export default function ProfilePage() {
             </Button>
           </div>
         </div>
+      </Card>
+
+      {/* File Manager */}
+      <Card className="border-slate-200 dark:border-slate-700 shadow-lg">
+        <CardHeader className="border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-green-50 to-slate-50 dark:from-slate-800 dark:to-slate-900">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+              <FolderOpen className="w-5 h-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl text-slate-900 dark:text-white">
+                Gestión de Archivos
+              </CardTitle>
+              <CardDescription className="text-slate-600 dark:text-slate-400">
+                Administra todos los archivos subidos a Supabase
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="pt-8">
+          <FileManager />
+        </CardContent>
       </Card>
     </div>
   )
