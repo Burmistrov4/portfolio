@@ -25,15 +25,15 @@ const cardVariants = {
 export function CertificateCard({ certificate }: { certificate: Certificate }) {
   return (
     <motion.div variants={cardVariants}>
-      <Card className="h-full hover:shadow-lg transition-shadow">
-      <CardHeader>
+      <Card className="h-full hover:shadow-lg transition-shadow flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="text-xl flex items-center gap-2">
           <FileText className="w-5 h-5 text-blue-600" />
           {certificate.title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+      <CardContent className="flex-grow space-y-4">
+        <CardDescription className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
           {certificate.description}
         </CardDescription>
 
