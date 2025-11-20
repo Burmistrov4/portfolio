@@ -30,6 +30,8 @@ export default function ProfilePage() {
     bio: '',
     linkedin_url: '',
     github_url: '',
+    profile_image_url: '',
+    cv_pdf_url: '',
   })
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)

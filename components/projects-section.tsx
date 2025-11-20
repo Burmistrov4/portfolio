@@ -77,7 +77,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       className="relative py-16 px-4 sm:px-8 overflow-hidden cursor-pointer"
       onClick={createSplash}
       style={{
-        background: 'hsl(var(--background))',
+        background: 'transparent',
         border: '2px solid transparent',
         borderImage: 'linear-gradient(45deg, hsl(var(--primary) / 0.3), hsl(var(--accent) / 0.2)) 1',
         borderRadius: '0.5rem',

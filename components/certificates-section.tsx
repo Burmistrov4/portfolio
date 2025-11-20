@@ -85,11 +85,11 @@ export function CertificatesSection() {
         className="relative py-16 px-4 sm:px-8 overflow-hidden cursor-pointer"
         onClick={createSplash}
         style={{
-          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 50%, rgba(20, 184, 166, 0.1) 100%)',
+          background: 'hsl(var(--background))',
           border: '2px solid transparent',
-          borderImage: 'linear-gradient(45deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3), rgba(20, 184, 166, 0.3)) 1',
-          borderRadius: '24px',
-          boxShadow: '0 0 40px rgba(16, 185, 129, 0.2), inset 0 0 40px rgba(16, 185, 129, 0.1)',
+          borderImage: 'linear-gradient(45deg, hsl(var(--accent) / 0.3), hsl(var(--primary) / 0.2)) 1',
+          borderRadius: '0.5rem',
+          boxShadow: '0 0 40px hsl(var(--accent) / 0.1), inset 0 0 40px hsl(var(--accent) / 0.05)',
           backdropFilter: 'blur(10px)',
           position: 'relative'
         }}
@@ -240,7 +240,7 @@ export function CertificatesSection() {
       className="relative py-16 px-4 sm:px-8 overflow-hidden cursor-pointer"
       onClick={createSplash}
       style={{
-        background: 'hsl(var(--background))',
+        background: 'transparent',
         border: '2px solid transparent',
         borderImage: 'linear-gradient(45deg, hsl(var(--accent) / 0.3), hsl(var(--primary) / 0.2)) 1',
         borderRadius: '0.5rem',

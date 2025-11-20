@@ -87,7 +87,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
   }, [showMain, fullText])
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-transparent">
       {/* Theme Toggle */}
       <div className="absolute top-4 right-4 z-20">
         <Button
