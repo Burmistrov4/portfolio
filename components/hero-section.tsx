@@ -39,6 +39,16 @@ export function HeroSection({ profile }: HeroSectionProps) {
   // Typing effect for professional title
   const fullText = useMemo(() => profile?.professional_title || 'Analista de Sistemas', [profile])
 
+  // Generate stable particle positions
+  const particlePositions = useMemo(() => {
+    return [...Array(20)].map(() => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      delay: Math.random() * 2,
+      duration: 3 + Math.random() * 2,
+    }))
+  }, [])
+
   // Temporary hardcoded URLs for testing
   const testImageUrl = 'https://vnxplxyexntbcikjuxhg.supabase.co/storage/v1/object/public/profile/151fba6b-d3ae-470b-af73-29bba50d42e3-IMG_20240728_212519-removebg-preview.png'
   const testCvUrl = 'https://vnxplxyexntbcikjuxhg.supabase.co/storage/v1/object/public/profile/f02df04c-cd23-4547-a715-da47b42adced-Curriculum-Vitae-CV-Profesional-Beige_2.pdf'
@@ -77,14 +87,14 @@ export function HeroSection({ profile }: HeroSectionProps) {
   }, [showMain, fullText])
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0D1117]">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
       {/* Theme Toggle */}
       <div className="absolute top-4 right-4 z-20">
         <Button
           variant="outline"
           size="icon"
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="bg-white/10 border-white/20 hover:bg-white/20 text-white"
+          className="bg-background/80 border-border hover:bg-accent/20 text-foreground"
         >
           <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -102,23 +112,23 @@ export function HeroSection({ profile }: HeroSectionProps) {
         setTimeout(() => setScatterParticles(false), 2000)
       }}>
         <motion.div
-          className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)] animate-pulse cursor-pointer"
+          className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.1),transparent_50%)] animate-pulse cursor-pointer"
           whileTap={{ scale: 1.05 }}
           transition={{ duration: 0.2 }}
         ></motion.div>
         <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-bounce cursor-pointer"
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-bounce cursor-pointer"
           whileTap={{ scale: 1.2, rotate: 10 }}
           transition={{ duration: 0.3 }}
         ></motion.div>
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-bounce cursor-pointer"
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-bounce cursor-pointer"
           style={{ animationDelay: '1s' }}
           whileTap={{ scale: 1.2, rotate: -10 }}
           transition={{ duration: 0.3 }}
         ></motion.div>
         <motion.div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-2xl animate-pulse cursor-pointer"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-secondary/5 rounded-full blur-2xl animate-pulse cursor-pointer"
           whileTap={{ scale: 1.3 }}
           transition={{ duration: 0.4 }}
         ></motion.div>
@@ -126,13 +136,13 @@ export function HeroSection({ profile }: HeroSectionProps) {
 
       {/* Floating Particles */}
       <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
+        {particlePositions.map((pos, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 bg-blue-400/20 rounded-full"
+            className="absolute w-2 h-2 bg-primary/20 rounded-full"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: pos.left,
+              top: pos.top,
             }}
             animate={scatterParticles ? {
               x: [0, (Math.random() - 0.5) * 200],
@@ -147,9 +157,9 @@ export function HeroSection({ profile }: HeroSectionProps) {
               duration: 2,
               ease: "easeOut",
             } : {
-              duration: 3 + Math.random() * 2,
+              duration: pos.duration,
               repeat: Infinity,
-              delay: Math.random() * 2,
+              delay: pos.delay,
             }}
           />
         ))}
@@ -159,7 +169,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
       {ripples.map(ripple => (
         <motion.div
           key={ripple.id}
-          className="absolute rounded-full bg-white/30 pointer-events-none"
+          className="absolute rounded-full bg-primary/30 pointer-events-none"
           style={{
             left: ripple.x - 50,
             top: ripple.y - 50,
@@ -255,23 +265,23 @@ export function HeroSection({ profile }: HeroSectionProps) {
               >
                 <div className="relative">
                   <motion.div
-                    className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 p-1 animate-spin"
+                    className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-secondary p-1 animate-spin"
                     style={{ animationDuration: '8s' }}
                   >
-                    <div className="w-full h-full rounded-full bg-slate-900"></div>
+                    <div className="w-full h-full rounded-full bg-background"></div>
                   </motion.div>
-                  <div className="relative p-1 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-400">
+                  <div className="relative p-1 rounded-full bg-gradient-to-r from-accent via-primary to-secondary">
                     <Image
                       src={displayImageUrl}
                       alt={profile?.full_name || 'Profile'}
                       width={240}
                       height={240}
-                      className="w-60 h-60 rounded-full object-cover border-4 border-slate-800 shadow-2xl"
+                      className="w-60 h-60 rounded-full object-cover border-4 border-background shadow-2xl"
                       unoptimized={true}
                     />
                   </div>
                   <motion.div
-                    className="absolute -top-2 -right-2 bg-blue-500 rounded-full p-2 cursor-pointer"
+                    className="absolute -top-2 -right-2 bg-primary rounded-full p-2 cursor-pointer"
                     whileHover={{
                       rotate: 360,
                       scale: 1.2,
@@ -285,20 +295,20 @@ export function HeroSection({ profile }: HeroSectionProps) {
                     animate={{ rotate: 360 }}
                     transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                   >
-                    <Sparkles className="w-6 h-6 text-white" />
+                    <Sparkles className="w-6 h-6 text-primary-foreground" />
                   </motion.div>
                 </div>
               </motion.div>
 
               {/* Profile Info */}
               <motion.div
-                className="flex-1 text-[#F0F6FC]"
+                className="flex-1 text-foreground"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
                 <motion.h1
-                  className="text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent"
+                  className="text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground via-primary/80 to-accent bg-clip-text text-transparent"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8, delay: 0.6 }}
@@ -307,19 +317,19 @@ export function HeroSection({ profile }: HeroSectionProps) {
                 </motion.h1>
 
                 <motion.h2
-                  className="text-2xl lg:text-3xl font-light mb-8 text-[#00FFFF] relative"
+                  className="text-2xl lg:text-3xl font-light mb-8 text-accent relative"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8, delay: 0.8 }}
                 >
                   {typedText}
                   {isTyping && (
-                    <span className="inline-block w-0.5 h-8 bg-[#00FFFF] ml-1 animate-pulse"></span>
+                    <span className="inline-block w-0.5 h-8 bg-accent ml-1 animate-pulse"></span>
                   )}
                 </motion.h2>
 
                 <motion.p
-                  className="text-lg lg:text-xl leading-relaxed mb-12 text-[#8B949E] max-w-3xl mx-auto lg:mx-0"
+                  className="text-lg lg:text-xl leading-relaxed mb-12 text-muted-foreground max-w-3xl mx-auto lg:mx-0"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.8, delay: 1 }}
@@ -342,7 +352,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
                       <Button
                         asChild
                         size="lg"
-                        className="bg-[#0078FF] hover:bg-[#0056CC] text-[#F0F6FC] border border-[#0078FF] shadow-lg hover:shadow-[#0078FF]/25 px-8 py-4 text-lg font-medium transition-all duration-300"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground border border-primary shadow-lg hover:shadow-primary/25 px-8 py-4 text-lg font-medium transition-all duration-300"
                       >
                         <a
                           href={profile.linkedin_url}
@@ -366,7 +376,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
                       <Button
                         asChild
                         size="lg"
-                        className="bg-[#161B22] hover:bg-[#21262D] text-[#F0F6FC] border border-[#30363D] shadow-lg hover:shadow-[#30363D]/25 px-8 py-4 text-lg font-medium transition-all duration-300"
+                        className="bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border shadow-lg hover:shadow-border/25 px-8 py-4 text-lg font-medium transition-all duration-300"
                       >
                         <a
                           href={profile.github_url}
@@ -388,7 +398,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
                     <Button
                       asChild
                       size="lg"
-                      className="bg-[#00FFFF] hover:bg-[#00CCCC] text-[#0D1117] border border-[#00FFFF] shadow-lg hover:shadow-[#00FFFF]/25 px-8 py-4 text-lg font-medium transition-all duration-300"
+                      className="bg-accent hover:bg-accent/90 text-accent-foreground border border-accent shadow-lg hover:shadow-accent/25 px-8 py-4 text-lg font-medium transition-all duration-300"
                     >
                       <a
                         href={displayCvUrl}
@@ -411,9 +421,9 @@ export function HeroSection({ profile }: HeroSectionProps) {
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+              <div className="w-6 h-10 border-2 border-border/30 rounded-full flex justify-center">
                 <motion.div
-                  className="w-1 h-3 bg-white/60 rounded-full mt-2"
+                  className="w-1 h-3 bg-foreground/60 rounded-full mt-2"
                   animate={{ y: [0, 12, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />

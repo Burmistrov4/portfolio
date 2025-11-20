@@ -35,22 +35,22 @@ export function CertificateCard({ certificate }: { certificate: Certificate }) {
       }}
       className="h-full"
     >
-      <Card className="h-full flex flex-col border-2 border-transparent hover:border-[#0078FF] transition-all duration-300 hover:shadow-2xl hover:shadow-[#0078FF]/20 bg-[#161B22] text-[#F0F6FC]">
+      <Card className="h-full flex flex-col border-2 border-transparent hover:border-primary transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20 bg-card text-card-foreground">
         <CardHeader className="flex-shrink-0">
-          <CardTitle className="text-xl flex items-center gap-2 text-[#F0F6FC]">
-            <FileText className="w-5 h-5 text-[#0078FF]" />
+          <CardTitle className="text-xl flex items-center gap-2 text-card-foreground">
+            <FileText className="w-5 h-5 text-primary" />
             {certificate.title}
           </CardTitle>
         </CardHeader>
         <CardContent className="flex-grow space-y-4">
-          <CardDescription className="text-sm text-[#8B949E] line-clamp-3">
+          <CardDescription className="text-sm text-muted-foreground line-clamp-3">
             {certificate.description}
           </CardDescription>
 
           {certificate.technologies?.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {certificate.technologies.map((tech) => (
-                <Badge key={tech} variant="secondary" className="text-xs bg-[#21262D] text-[#F0F6FC] border-[#30363D]">
+                <Badge key={tech} variant="secondary" className="text-xs bg-muted text-muted-foreground border-border">
                   {tech}
                 </Badge>
               ))}
@@ -63,7 +63,7 @@ export function CertificateCard({ certificate }: { certificate: Certificate }) {
           >
             <Button
               asChild
-              className="w-full bg-[#0078FF] hover:bg-[#0056CC] text-[#F0F6FC] border border-[#0078FF] shadow-lg hover:shadow-[#0078FF]/25 px-6 py-3 text-base font-medium transition-all duration-300"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground border border-primary shadow-lg hover:shadow-primary/25 px-6 py-3 text-base font-medium transition-all duration-300"
             >
               <a
                 href={certificate.cert_url}

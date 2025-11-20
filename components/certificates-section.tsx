@@ -192,15 +192,15 @@ export function CertificatesSection() {
   
         <div className="relative z-10 max-w-6xl mx-auto">
           <motion.h2
-            className="text-4xl font-bold text-center mb-12 text-[#F0F6FC]"
+            className="text-4xl font-bold text-center mb-12 text-foreground"
             style={{
-              textShadow: '0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3)',
+              textShadow: '0 0 20px hsl(var(--accent) / 0.5), 0 0 40px hsl(var(--accent) / 0.3)',
             }}
             animate={{
               textShadow: [
-                '0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3)',
-                '0 0 25px rgba(0, 120, 255, 0.6), 0 0 50px rgba(0, 120, 255, 0.4)',
-                '0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3)'
+                '0 0 20px hsl(var(--accent) / 0.5), 0 0 40px hsl(var(--accent) / 0.3)',
+                '0 0 25px hsl(var(--primary) / 0.6), 0 0 50px hsl(var(--primary) / 0.4)',
+                '0 0 20px hsl(var(--accent) / 0.5), 0 0 40px hsl(var(--accent) / 0.3)'
               ]
             }}
             transition={{
@@ -240,11 +240,11 @@ export function CertificatesSection() {
       className="relative py-16 px-4 sm:px-8 overflow-hidden cursor-pointer"
       onClick={createSplash}
       style={{
-        background: '#0D1117',
+        background: 'hsl(var(--background))',
         border: '2px solid transparent',
-        borderImage: 'linear-gradient(45deg, rgba(0, 255, 255, 0.3), rgba(0, 120, 255, 0.2)) 1',
+        borderImage: 'linear-gradient(45deg, hsl(var(--accent) / 0.3), hsl(var(--primary) / 0.2)) 1',
         borderRadius: '0.5rem',
-        boxShadow: '0 0 40px rgba(0, 255, 255, 0.1), inset 0 0 40px rgba(0, 255, 255, 0.05)',
+        boxShadow: '0 0 40px hsl(var(--accent) / 0.1), inset 0 0 40px hsl(var(--accent) / 0.05)',
         backdropFilter: 'blur(10px)',
         position: 'relative'
       }}
@@ -272,24 +272,57 @@ export function CertificatesSection() {
       {/* Subtle Water Surface Effect */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-50/10 to-emerald-100/15 dark:from-transparent dark:via-emerald-950/10 dark:to-emerald-900/15 rounded-lg"></div>
 
-      {/* Minimal Water Particles - Only 3 for performance */}
+      {/* Enhanced Water Particles - Increased count with luminosity */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              left: `${10 + (i * 12) % 80}%`,
+              top: `${20 + (i * 15) % 60}%`,
+              width: `${2 + (i % 3)}px`,
+              height: `${2 + (i % 3)}px`,
+              background: `radial-gradient(circle, hsl(var(--accent) / ${0.4 + (i % 3) * 0.2}), transparent)`,
+              boxShadow: `0 0 ${4 + (i % 3) * 2}px hsl(var(--accent) / ${0.6 + (i % 3) * 0.2})`,
+            }}
+            animate={{
+              y: [-20, 20, -20],
+              x: [-10, 10, -10],
+              opacity: [0.1, 0.8, 0.1],
+              scale: [0.8, 1.2, 0.8],
+            }}
+            transition={{
+              duration: 8 + (i % 3) * 2,
+              repeat: Infinity,
+              delay: i * 0.3,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Subtle Light Bursts */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(3)].map((_, i) => (
           <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-emerald-400/30 rounded-full"
+            key={`burst-${i}`}
+            className="absolute rounded-full"
             style={{
-              left: `${25 + i * 20}%`,
-              top: `${35 + i * 15}%`,
+              left: `${20 + i * 30}%`,
+              top: `${30 + i * 20}%`,
+              width: '120px',
+              height: '120px',
+              background: `radial-gradient(circle, hsl(var(--primary) / 0.1), transparent 70%)`,
             }}
             animate={{
-              y: [-15, 15, -15],
-              opacity: [0.2, 0.6, 0.2],
+              scale: [0.8, 1.2, 0.8],
+              opacity: [0.1, 0.3, 0.1],
             }}
             transition={{
               duration: 6 + i * 2,
               repeat: Infinity,
-              delay: i * 0.5,
+              delay: i * 1.5,
               ease: "easeInOut"
             }}
           />

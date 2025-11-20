@@ -5,25 +5,25 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Sony-inspired color palette - Light mode */
-  --background: #0D1117;
-  --foreground: #F0F6FC;
-  --card: #161B22;
-  --card-foreground: #F0F6FC;
-  --popover: #161B22;
-  --popover-foreground: #F0F6FC;
+  /* Light mode - clean and professional */
+  --background: #FFFFFF;
+  --foreground: #0D1117;
+  --card: #F8F9FA;
+  --card-foreground: #0D1117;
+  --popover: #F8F9FA;
+  --popover-foreground: #0D1117;
   --primary: #0078FF;
-  --primary-foreground: #F0F6FC;
-  --secondary: #21262D;
-  --secondary-foreground: #F0F6FC;
-  --muted: #21262D;
-  --muted-foreground: #8B949E;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F1F3F4;
+  --secondary-foreground: #0D1117;
+  --muted: #F1F3F4;
+  --muted-foreground: #656D76;
   --accent: #00FFFF;
   --accent-foreground: #0D1117;
   --destructive: #DA3633;
-  --destructive-foreground: #F0F6FC;
-  --border: #30363D;
-  --input: #21262D;
+  --destructive-foreground: #FFFFFF;
+  --border: #D1D9E0;
+  --input: #F1F3F4;
   --ring: #0078FF;
   --chart-1: #0078FF;
   --chart-2: #00FFFF;
@@ -31,13 +31,13 @@
   --chart-4: #4ECDC4;
   --chart-5: #45B7D1;
   --radius: 0.5rem;
-  --sidebar: #161B22;
-  --sidebar-foreground: #F0F6FC;
+  --sidebar: #F8F9FA;
+  --sidebar-foreground: #0D1117;
   --sidebar-primary: #0078FF;
-  --sidebar-primary-foreground: #F0F6FC;
-  --sidebar-accent: #21262D;
-  --sidebar-accent-foreground: #F0F6FC;
-  --sidebar-border: #30363D;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F1F3F4;
+  --sidebar-accent-foreground: #0D1117;
+  --sidebar-border: #D1D9E0;
   --sidebar-ring: #0078FF;
 }
 
