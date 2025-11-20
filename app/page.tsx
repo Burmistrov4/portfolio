@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 // Force redeploy 3
 import supabase from '@/lib/supabase'
 import { HeroSection } from '@/components/hero-section'
@@ -34,6 +35,9 @@ export default async function Home() {
       .select('*')
       .order('created_at', { ascending: false })
 
+    console.log('Projects fetched in Home - Raw data:', data)
+    console.log('Projects fetched in Home - Error:', error)
+
     if (error) {
       console.error('Error fetching projects:', error)
     } else {
@@ -49,6 +53,8 @@ export default async function Home() {
         demo_link: project.demo_link || null,
       }))
     }
+
+    console.log('Projects fetched in Home - Processed:', projects)
   } catch (err) {
     console.error('Error fetching projects:', err)
   }

@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,6 +34,7 @@ const STEPS = [
  * @returns {JSX.Element} The project setup wizard.
  */
 export function ProjectSetupWizard() {
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [projects, setProjects] = useState<Project[]>([])
   const [editingProject, setEditingProject] = useState<Project | null>(null)
@@ -289,6 +291,11 @@ export function ProjectSetupWizard() {
         setEditingProject(null)
         resetForm()
         loadProjects() // Reload projects
+
+        // Redirect to homepage after successful save
+        setTimeout(() => {
+          router.push('/')
+        }, 1500)
       } else {
         alert(`Error al ${editingProject ? 'actualizar' : 'guardar'}: ` + result.error)
       }
