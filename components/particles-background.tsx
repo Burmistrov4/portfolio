@@ -10,15 +10,15 @@ import { motion } from "framer-motion"
 export function ParticlesBackground() {
   // Generate stable particle positions and properties
   const particles = useMemo(() => {
-    return [...Array(25)].map((_, i) => ({
+    return [...Array(35)].map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
-      size: 2 + (i % 4), // Size between 2-5px
+      size: 3 + (i % 5), // Size between 3-7px
       delay: Math.random() * 3,
       duration: 6 + Math.random() * 4,
-      opacity: 0.1 + Math.random() * 0.3,
-      glowIntensity: 0.3 + (i % 3) * 0.2,
+      opacity: 0.2 + Math.random() * 0.4,
+      glowIntensity: 0.5 + (i % 3) * 0.3,
     }))
   }, [])
 
@@ -39,7 +39,7 @@ export function ParticlesBackground() {
           animate={{
             y: [-30, 30, -30],
             x: [-20, 20, -20],
-            opacity: [particle.opacity * 0.4, particle.opacity, particle.opacity * 0.4],
+            opacity: [particle.opacity * 0.6, particle.opacity * 1.2, particle.opacity * 0.6],
             scale: [0.8, 1.2, 0.8],
           }}
           transition={{
