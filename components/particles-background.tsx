@@ -1,71 +1,80 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
+import { motion } from "framer-motion"
 
 /**
- * @description Matrix-style particles background component.
+ * @description Global floating particles background component with glow effects.
  * @returns {JSX.Element} The particles background.
  */
 export function ParticlesBackground() {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-
-    // Simple CSS-based particle animation as fallback
-    const createParticle = () => {
-      const particle = document.createElement('div')
-      particle.className = 'absolute w-1 h-1 bg-cyan-400 rounded-full opacity-20 animate-pulse'
-      particle.style.left = Math.random() * 100 + '%'
-      particle.style.top = '-10px'
-      particle.style.animation = `fall ${Math.random() * 3 + 2}s linear infinite`
-
-      const container = document.getElementById('particles-container')
-      if (container) {
-        container.appendChild(particle)
-
-        setTimeout(() => {
-          if (container.contains(particle)) {
-            container.removeChild(particle)
-          }
-        }, 5000)
-      }
-    }
-
-    // Create particles every 200ms
-    const interval = setInterval(createParticle, 200)
-
-    return () => clearInterval(interval)
+  // Generate stable particle positions and properties
+  const particles = useMemo(() => {
+    return [...Array(25)].map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: 2 + (i % 4), // Size between 2-5px
+      delay: Math.random() * 3,
+      duration: 6 + Math.random() * 4,
+      opacity: 0.1 + Math.random() * 0.3,
+      glowIntensity: 0.3 + (i % 3) * 0.2,
+    }))
   }, [])
 
-  if (!mounted) {
-    return <div className="absolute inset-0 z-0 bg-gradient-to-br from-cyan-900/10 to-purple-900/10" />
-  }
-
   return (
-    <>
-      <div
-        id="particles-container"
-        className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
-      />
-      <style jsx>{`
-        @keyframes fall {
-          0% {
-            transform: translateY(-10px);
-            opacity: 0;
-          }
-          10% {
-            opacity: 0.3;
-          }
-          90% {
-            opacity: 0.3;
-          }
-          100% {
-            transform: translateY(100vh);
-            opacity: 0;
-          }
-        }
-      `}</style>
-    </>
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute rounded-full"
+          style={{
+            left: particle.left,
+            top: particle.top,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            background: `radial-gradient(circle, hsl(var(--primary) / ${particle.opacity}), transparent)`,
+            boxShadow: `0 0 ${particle.size * 2}px hsl(var(--primary) / ${particle.glowIntensity}), 0 0 ${particle.size * 4}px hsl(var(--accent) / ${particle.glowIntensity * 0.5})`,
+          }}
+          animate={{
+            y: [-30, 30, -30],
+            x: [-20, 20, -20],
+            opacity: [particle.opacity * 0.4, particle.opacity, particle.opacity * 0.4],
+            scale: [0.8, 1.2, 0.8],
+          }}
+          transition={{
+            duration: particle.duration,
+            repeat: Infinity,
+            delay: particle.delay,
+            ease: "easeInOut"
+          }}
+        />
+      ))}
+
+      {/* Additional subtle light bursts */}
+      {[...Array(8)].map((_, i) => (
+        <motion.div
+          key={`burst-${i}`}
+          className="absolute rounded-full"
+          style={{
+            left: `${10 + i * 12}%`,
+            top: `${15 + (i * 11) % 70}%`,
+            width: '100px',
+            height: '100px',
+            background: `radial-gradient(circle, hsl(var(--accent) / 0.08), transparent 65%)`,
+          }}
+          animate={{
+            scale: [0.8, 1.3, 0.8],
+            opacity: [0.03, 0.12, 0.03],
+          }}
+          transition={{
+            duration: 10 + i * 1.5,
+            repeat: Infinity,
+            delay: i * 0.8,
+            ease: "easeInOut"
+          }}
+        />
+      ))}
+    </div>
   )
 }
