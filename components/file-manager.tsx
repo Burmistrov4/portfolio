@@ -293,7 +293,7 @@ export function FileManager({ onFileSelect, selectedFile, title = "Gestión de A
                         <AlertDialogHeader>
                           <AlertDialogTitle>¿Eliminar archivo?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Esta acción no se puede deshacer. El archivo "{file.name}" será eliminado permanentemente.
+                            Esta acción no se puede deshacer. El archivo {"\""} {file.name} {"\""} será eliminado permanentemente.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
