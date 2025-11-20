@@ -18,7 +18,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json(data || [])
+    // Process projects to generate proper image URLs and handle null values
+    const processedProjects = (data || []).map(project => ({
+      ...project,
+      // Generate public URLs for images stored in project-files bucket
+      file_paths: project.file_paths?.map((filePath: string) =>
+        supabase.storage.from('project-files').getPublicUrl(filePath).data.publicUrl
+      ) || [],
+      // Ensure links are properly handled (can be null/empty)
+      github_link: project.github_link || null,
+      demo_link: project.demo_link || null,
+    }))
+
+    console.log('Projects fetched:', processedProjects.length, 'projects')
+
+    return NextResponse.json(processedProjects)
   } catch (error) {
     console.error('Error in projects API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
