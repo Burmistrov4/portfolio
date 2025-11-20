@@ -29,7 +29,8 @@ export async function POST(request: NextRequest) {
     const oldImageUrl = currentProfile?.profile_image_url
     const oldCvUrl = currentProfile?.cv_pdf_url
 
-    // Merge new data with existing data - preserve existing values when new ones are null/undefined
+    // Merge new data with existing data - preserve existing values when new ones are null/undefined or empty
+    // Only update file URLs if they contain actual URLs (not empty strings from form initialization)
     const mergedData = {
       id: 1,
       full_name: full_name !== undefined ? full_name : currentProfile?.full_name,
@@ -37,8 +38,8 @@ export async function POST(request: NextRequest) {
       bio: bio !== undefined ? bio : currentProfile?.bio,
       linkedin_url: linkedin_url !== undefined ? linkedin_url : currentProfile?.linkedin_url,
       github_url: github_url !== undefined ? github_url : currentProfile?.github_url,
-      profile_image_url: profile_image_url !== undefined && profile_image_url !== null && profile_image_url !== '' ? profile_image_url : currentProfile?.profile_image_url,
-      cv_pdf_url: cv_pdf_url !== undefined && cv_pdf_url !== null && cv_pdf_url !== '' ? cv_pdf_url : currentProfile?.cv_pdf_url
+      profile_image_url: (profile_image_url && profile_image_url.trim() !== '' && profile_image_url.includes('supabase')) ? profile_image_url : currentProfile?.profile_image_url,
+      cv_pdf_url: (cv_pdf_url && cv_pdf_url.trim() !== '' && cv_pdf_url.includes('supabase')) ? cv_pdf_url : currentProfile?.cv_pdf_url
     }
 
     const { data, error } = await supabase

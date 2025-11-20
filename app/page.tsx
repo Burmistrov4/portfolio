@@ -58,9 +58,9 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-transparent">
       <HeroSection profile={profileData} />
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-16 bg-transparent">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Skills Sidebar */}
           <div className="lg:col-span-1">
