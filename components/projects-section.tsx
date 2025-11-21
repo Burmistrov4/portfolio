@@ -3,6 +3,8 @@
 import { useState, useMemo, useRef } from 'react'
 import { ProjectCard } from '@/components/project-card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Eye, EyeOff } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 interface Project {
@@ -23,13 +25,14 @@ interface ProjectsSectionProps {
  * @returns {JSX.Element} The projects section.
  */
 export function ProjectsSection({ projects }: ProjectsSectionProps) {
-  const [selectedTech, setSelectedTech] = useState<string | null>(null)
-  const [ripples, setRipples] = useState<Array<{
-    id: number,
-    x: number,
-    y: number
-  }>>([])
-  const sectionRef = useRef<HTMLElement>(null)
+   const [selectedTech, setSelectedTech] = useState<string | null>(null)
+   const [showTags, setShowTags] = useState(true)
+   const [ripples, setRipples] = useState<Array<{
+     id: number,
+     x: number,
+     y: number
+   }>>([])
+   const sectionRef = useRef<HTMLElement>(null)
 
   const createSplash = (event: React.MouseEvent) => {
     if (!sectionRef.current) return
@@ -189,7 +192,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
         </motion.h2>
 
         {/* Technology Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
           <Badge
             variant={selectedTech === null ? "default" : "secondary"}
             className="cursor-pointer px-4 py-2 text-sm"
@@ -207,6 +210,19 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
               {tech}
             </Badge>
           ))}
+        </div>
+
+        {/* Toggle Tags Button */}
+        <div className="flex justify-center mb-8">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowTags(!showTags)}
+            className="flex items-center gap-2"
+          >
+            {showTags ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            {showTags ? 'Ocultar Etiquetas' : 'Mostrar Etiquetas'}
+          </Button>
         </div>
 
         {/* Projects Grid */}
@@ -227,8 +243,8 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
             viewport={{ once: true }}
           >
             {filteredProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
+               <ProjectCard key={project.id} project={project} showTags={showTags} />
+             ))}
           </motion.div>
         ) : (
           <div className="text-center py-12">

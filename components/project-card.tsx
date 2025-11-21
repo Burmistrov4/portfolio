@@ -14,7 +14,8 @@ interface Project {
 }
 
 interface ProjectCardProps {
-  project: Project
+   project: Project
+   showTags?: boolean
 }
 
 /**
@@ -27,7 +28,7 @@ const cardVariants = {
   visible: { opacity: 1, y: 0 }
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, showTags = true }: ProjectCardProps) {
   const [imageError, setImageError] = useState(false)
 
   return (
@@ -72,27 +73,27 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <CardDescription className="text-sm text-muted-foreground line-clamp-3 mb-3">
               {project.ai_summary}
             </CardDescription>
-            {project.technologies && project.technologies.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {project.technologies.slice(0, 3).map((tech, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="text-xs px-2 py-0.5 bg-secondary/50 text-secondary-foreground border-secondary-foreground/20"
-                  >
-                    {tech}
-                  </Badge>
-                ))}
-                {project.technologies.length > 3 && (
-                  <Badge
-                    variant="secondary"
-                    className="text-xs px-2 py-0.5 bg-secondary/50 text-secondary-foreground border-secondary-foreground/20"
-                  >
-                    +{project.technologies.length - 3}
-                  </Badge>
-                )}
-              </div>
-            )}
+            {showTags && project.technologies && project.technologies.length > 0 && (
+               <div className="flex flex-wrap gap-1">
+                 {project.technologies.slice(0, 3).map((tech, index) => (
+                   <Badge
+                     key={index}
+                     variant="secondary"
+                     className="text-xs px-2 py-0.5 bg-secondary/50 text-secondary-foreground border-secondary-foreground/20"
+                   >
+                     {tech}
+                   </Badge>
+                 ))}
+                 {project.technologies.length > 3 && (
+                   <Badge
+                     variant="secondary"
+                     className="text-xs px-2 py-0.5 bg-secondary/50 text-secondary-foreground border-secondary-foreground/20"
+                   >
+                     +{project.technologies.length - 3}
+                   </Badge>
+                 )}
+               </div>
+             )}
           </CardContent>
         </Card>
       </Link>

@@ -3,6 +3,8 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { CertificateCard } from '@/components/certificate-card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Eye, EyeOff } from 'lucide-react'
 import supabase from '@/lib/supabase-client'
 import { motion } from 'framer-motion'
 
@@ -19,16 +21,17 @@ interface Certificate {
  * @returns {JSX.Element} The certificates section.
  */
 export function CertificatesSection() {
-  const [certificates, setCertificates] = useState<Certificate[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedTech, setSelectedTech] = useState<string | null>(null)
-  const [ripples, setRipples] = useState<Array<{
-    id: number,
-    x: number,
-    y: number
-  }>>([])
-  const sectionRef = useRef<HTMLElement>(null)
+   const [certificates, setCertificates] = useState<Certificate[]>([])
+   const [loading, setLoading] = useState(true)
+   const [error, setError] = useState<string | null>(null)
+   const [selectedTech, setSelectedTech] = useState<string | null>(null)
+   const [showTags, setShowTags] = useState(true)
+   const [ripples, setRipples] = useState<Array<{
+     id: number,
+     x: number,
+     y: number
+   }>>([])
+   const sectionRef = useRef<HTMLElement>(null)
 
   const createSplash = (event: React.MouseEvent) => {
     if (!sectionRef.current) return
@@ -372,26 +375,39 @@ export function CertificatesSection() {
 
         {/* Technology Filter */}
         {allTechnologies.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-2 mb-12">
-            <Badge
-              variant={selectedTech === null ? "default" : "secondary"}
-              className="cursor-pointer px-4 py-2 text-sm"
-              onClick={() => setSelectedTech(null)}
-            >
-              Todos
-            </Badge>
-            {allTechnologies.map(tech => (
-              <Badge
-                key={tech}
-                variant={selectedTech === tech ? "default" : "secondary"}
-                className="cursor-pointer px-4 py-2 text-sm"
-                onClick={() => setSelectedTech(selectedTech === tech ? null : tech)}
-              >
-                {tech}
-              </Badge>
-            ))}
-          </div>
-        )}
+           <div className="flex flex-wrap justify-center gap-2 mb-8">
+             <Badge
+               variant={selectedTech === null ? "default" : "secondary"}
+               className="cursor-pointer px-4 py-2 text-sm"
+               onClick={() => setSelectedTech(null)}
+             >
+               Todos
+             </Badge>
+             {allTechnologies.map(tech => (
+               <Badge
+                 key={tech}
+                 variant={selectedTech === tech ? "default" : "secondary"}
+                 className="cursor-pointer px-4 py-2 text-sm"
+                 onClick={() => setSelectedTech(selectedTech === tech ? null : tech)}
+               >
+                 {tech}
+               </Badge>
+             ))}
+           </div>
+         )}
+
+         {/* Toggle Tags Button */}
+         <div className="flex justify-center mb-8">
+           <Button
+             variant="outline"
+             size="sm"
+             onClick={() => setShowTags(!showTags)}
+             className="flex items-center gap-2"
+           >
+             {showTags ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+             {showTags ? 'Ocultar Etiquetas' : 'Mostrar Etiquetas'}
+           </Button>
+         </div>
 
         {filteredCertificates.length > 0 ? (
           <motion.div
@@ -410,8 +426,8 @@ export function CertificatesSection() {
             viewport={{ once: true }}
           >
             {filteredCertificates.map((certificate) => (
-              <CertificateCard key={certificate.id} certificate={certificate} />
-            ))}
+               <CertificateCard key={certificate.id} certificate={certificate} showTags={showTags} />
+             ))}
           </motion.div>
         ) : (
           <div className="text-center py-12">

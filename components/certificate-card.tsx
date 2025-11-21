@@ -22,7 +22,7 @@ const cardVariants = {
   visible: { opacity: 1, y: 0 }
 }
 
-export function CertificateCard({ certificate }: { certificate: Certificate }) {
+export function CertificateCard({ certificate, showTags = true }: { certificate: Certificate; showTags?: boolean }) {
   return (
     <motion.div
       variants={cardVariants}
@@ -47,7 +47,7 @@ export function CertificateCard({ certificate }: { certificate: Certificate }) {
             {certificate.description}
           </CardDescription>
 
-          {certificate.technologies?.length > 0 && (
+          {showTags && certificate.technologies?.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {certificate.technologies.map((tech) => (
                 <Badge key={tech} variant="secondary" className="text-xs bg-muted text-muted-foreground border-border">
