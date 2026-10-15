@@ -24,12 +24,19 @@ export default function LoginForm() {
     return () => subscription.unsubscribe()
   }, [supabase, router])
 
+  // `window` no existe durante el render en servidor (SSR genera 500: "window is not defined").
+  // En servidor usamos la URL pública configurada; en el navegador, el origen actual.
+  const origin =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : process.env.NEXT_PUBLIC_SITE_URL || 'https://lorenzoroca.vercel.app'
+
   return (
     <Auth
       supabaseClient={supabase}
       appearance={{ theme: ThemeSupa }}
       providers={[]}
-      redirectTo={`${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/admin/login`}
+      redirectTo={`${origin}/admin/login`}
     />
   )
 }
