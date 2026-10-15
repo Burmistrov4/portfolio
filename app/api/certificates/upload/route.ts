@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File must be a PDF' }, { status: 400 })
     }
 
-    const fileName = `${crypto.randomUUID()}-${file.name}`
+    const sanitizedName = file.name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.-]/g, '')
+    const fileName = `${crypto.randomUUID()}-${sanitizedName}`
 
     // Ensure the 'certificates' bucket exists and is public in Supabase Storage dashboard
     const { data, error } = await supabase.storage
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Upload error:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
       return NextResponse.json({ error: `Failed to upload file: ${error.message}` }, { status: 500 })
     }
 

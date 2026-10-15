@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import supabase from '@/lib/supabase'
+import { resolveProfileUrl } from '@/lib/storage'
 
 /**
  * @description API route to get profile data.
+ * Las URLs de los archivos se normalizan a una sola URL publica: antes esta
+ * ruta trataba la URL completa como nombre de archivo y la duplicaba, lo que
+ * dejaba la vista previa rota en el panel y corrompia el dato al guardar.
  * @param {NextRequest} request The request object.
  * @returns {NextResponse} The response with profile data.
  */
@@ -30,19 +34,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Build public URLs from filenames stored in DB
-    const profileData = { ...data }
-    if (data.profile_image_url) {
-      const { data: { publicUrl: imageUrl } } = supabase.storage
-        .from('profile')
-        .getPublicUrl(data.profile_image_url)
-      profileData.profile_image_url = imageUrl
-    }
-    if (data.cv_pdf_url) {
-      const { data: { publicUrl: cvUrl } } = supabase.storage
-        .from('profile')
-        .getPublicUrl(data.cv_pdf_url)
-      profileData.cv_pdf_url = cvUrl
+    const profileData = {
+      ...data,
+      profile_image_url: resolveProfileUrl(data.profile_image_url) ?? '',
+      cv_pdf_url: resolveProfileUrl(data.cv_pdf_url) ?? '',
     }
 
     return NextResponse.json(profileData, { status: 200 })

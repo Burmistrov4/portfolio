@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Sparkles, Loader2, Upload, Edit, Trash2, Plus } from "lucide-react"
+import { FileText, Sparkles, Loader2, Upload, Edit, Trash2, Plus, Eye, EyeOff } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
 import Link from "next/link"
 
 /**
@@ -20,6 +21,7 @@ export default function CertificateManagementPage() {
     description: "",
     technologies: [] as string[],
     file: null as File | null,
+    is_published: true,
   })
   const [techInput, setTechInput] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
@@ -67,6 +69,7 @@ export default function CertificateManagementPage() {
       description: certificate.description,
       technologies: certificate.technologies,
       file: null, // Can't pre-fill file input
+      is_published: certificate.is_published ?? true,
     })
   }
 
@@ -76,6 +79,7 @@ export default function CertificateManagementPage() {
       description: "",
       technologies: [],
       file: null,
+      is_published: true,
     })
     setTechInput("")
     // Clear file input manually since HTML file inputs can't be reset programmatically
@@ -220,7 +224,8 @@ export default function CertificateManagementPage() {
         title: formData.title,
         description: formData.description,
         technologies: formData.technologies,
-        certUrl
+        cert_url: certUrl,
+        is_published: formData.is_published,
       }
 
       let response
@@ -382,6 +387,31 @@ export default function CertificateManagementPage() {
                 </div>
               )}
 
+              {/* Visibilidad */}
+              <div className="flex items-start justify-between gap-4 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+                <div className="space-y-1">
+                  <label
+                    htmlFor="is_published"
+                    className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white"
+                  >
+                    {formData.is_published ? (
+                      <Eye className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <EyeOff className="h-4 w-4 text-slate-400" />
+                    )}
+                    Mostrar en el portafolio público
+                  </label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Si lo desactivas, el certificado queda guardado pero no se muestra en el sitio.
+                  </p>
+                </div>
+                <Switch
+                  id="is_published"
+                  checked={formData.is_published}
+                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_published: checked }))}
+                />
+              </div>
+
               {/* Submit Button */}
               <div className="flex gap-4">
                 <Button
@@ -444,9 +474,16 @@ export default function CertificateManagementPage() {
         {certificates.map((certificate) => (
           <Card key={certificate.id} className="border-slate-200 dark:border-slate-700 shadow-lg">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-slate-900 dark:text-white truncate">
-                {certificate.title}
-              </CardTitle>
+              <div className="flex items-start justify-between gap-2">
+                <CardTitle className="text-lg text-slate-900 dark:text-white truncate">
+                  {certificate.title}
+                </CardTitle>
+                {certificate.is_published === false && (
+                  <Badge variant="secondary" className="shrink-0 text-xs">
+                    Oculto
+                  </Badge>
+                )}
+              </div>
               <CardDescription className="text-slate-600 dark:text-slate-400">
                 {certificate.technologies?.length > 0 ? certificate.technologies.slice(0, 2).join(', ') : 'Sin tecnologías'}
               </CardDescription>

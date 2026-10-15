@@ -43,7 +43,7 @@ export interface Skill {
 export const CONTACT = {
   email: 'lorenzoroca333@gmail.com',
   phone: '0412-4661379',
-  location: 'Valencia, Carabobo, Venezuela',
+  location: 'Flor Amarillo, Valencia, Carabobo',
   linkedin: 'https://www.linkedin.com/in/lorenzo-roca-131391190/',
   github: 'https://github.com/Burmistrov4',
   portfolio: 'https://lorenzoroca.vercel.app',

@@ -23,7 +23,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { title, description, technologies, certUrl } = await request.json()
+    // Se acepta `cert_url` (nombre de la columna) y `certUrl` por compatibilidad.
+    const { title, description, technologies, certUrl, cert_url, is_published } = await request.json()
+    const finalCertUrl = cert_url ?? certUrl
 
     const { data, error } = await supabase
       .from('certificates')
@@ -32,8 +34,8 @@ export async function POST(request: NextRequest) {
           title,
           description,
           technologies,
-          cert_url: certUrl,
-          is_published: true,
+          cert_url: finalCertUrl,
+          is_published: is_published ?? true,
         },
       ])
       .select()

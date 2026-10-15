@@ -7,11 +7,16 @@ import { AdminNav } from '@/components/admin-nav'
 
 /**
  * @description Layout for admin routes with authentication check.
+ *
+ * Usa `getUser()` en lugar de `getSession()`: `getSession()` se limita a leer y
+ * decodificar la cookie sin validar la firma contra el servidor de Supabase, por
+ * lo que una cookie fabricada podia pasar el control. `getUser()` valida el JWT
+ * con el servidor de autenticacion.
+ *
  * @param {Object} props The props containing children.
  * @returns {JSX.Element} The layout.
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  console.log('ProtectedLayout: Checking session...')
   const supabase = createServerComponentClient(
     { cookies },
     {
@@ -20,14 +25,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     }
   )
 
-  const { data: { session } } = await supabase.auth.getSession()
-  console.log('ProtectedLayout: Session found:', !!session)
+  const { data: { user } } = await supabase.auth.getUser()
 
-  if (!session) {
-    console.log('ProtectedLayout: No session, redirecting to /admin/login')
+  if (!user) {
     redirect('/admin/login')
   }
-  console.log('ProtectedLayout: Session valid, rendering children')
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">

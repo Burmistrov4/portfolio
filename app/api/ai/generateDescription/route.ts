@@ -1,12 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 /**
  * @description API route to generate project description using Google Gemini AI.
+ *
+ * SEGURIDAD: la ruta consume la cuota de la API de Gemini, asi que exige
+ * sesion valida. Sin esta comprobacion cualquiera podia invocarla en bucle y
+ * agotar la clave.
+ *
  * @param {NextRequest} request The request object.
  * @returns {NextResponse} The response with AI-generated description.
  */
 export async function POST(request: NextRequest) {
+  const supabaseAuth = createRouteHandlerClient(
+    { cookies },
+    {
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    }
+  )
+  const { data: { session } } = await supabaseAuth.auth.getSession()
+
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const body = await request.json()
   const { title, technologies, notes, userMessage, conversationHistory } = body
 

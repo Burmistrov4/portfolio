@@ -24,10 +24,13 @@ export async function GET(request: NextRequest) {
     // Process projects to generate proper image URLs and handle null values
     const processedProjects = (data || []).map(project => ({
       ...project,
-      // Generate public URLs for images stored in project-files bucket
-      file_paths: project.file_paths?.map((filePath: string) =>
-        supabase.storage.from('project-files').getPublicUrl(filePath).data.publicUrl
-      ) || [],
+      // `file_paths` puede contener URLs completas (lo que devuelve la subida)
+      // o nombres de archivo. Se normaliza a una sola URL para no duplicar el
+      // prefijo del bucket.
+      file_paths: project.file_paths?.map((filePath: string) => {
+        if (/^https?:\/\//i.test(filePath)) return filePath
+        return supabase.storage.from('project-files').getPublicUrl(filePath).data.publicUrl
+      }) || [],
       // Ensure links are properly handled (can be null/empty)
       github_link: project.github_link || null,
       demo_link: project.demo_link || null,
