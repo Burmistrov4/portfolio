@@ -29,7 +29,7 @@ export default function LoginForm() {
       supabaseClient={supabase}
       appearance={{ theme: ThemeSupa }}
       providers={[]}
-      redirectTo={`${window.location.origin}/admin/setup-wizard`}
+      redirectTo={`${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/admin/login`}
     />
   )
 }
