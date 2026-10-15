@@ -36,7 +36,7 @@ export default function LoginForm() {
       supabaseClient={supabase}
       appearance={{ theme: ThemeSupa }}
       providers={[]}
-      redirectTo={`${origin}/admin/login`}
+      redirectTo={`${origin}/admin/update-password`}
     />
   )
 }
