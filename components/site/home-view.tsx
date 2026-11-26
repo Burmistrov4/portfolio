@@ -1,21 +1,27 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import Image from 'next/image'
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { SiteNav } from '@/components/site/site-nav'
 import { Hero } from '@/components/site/hero'
 import { ProjectsExplorer } from '@/components/site/projects-explorer'
 import { CertificatesGrid } from '@/components/site/certificates-grid'
 import { ContactSection } from '@/components/site/contact-section'
 import { SiteFooter } from '@/components/site/site-footer'
+import { LaptopOS } from '@/components/site/laptop-os'
 import { usePortfolio } from '@/components/site/portfolio-context'
-import { CONTACT, type Certificate, type Profile, type Project } from '@/lib/portfolio-types'
-import type { SpatialSection } from '@/components/site/workbench-3d'
+import type { Certificate, Profile, Project } from '@/lib/portfolio-types'
 
 const Workbench3D = dynamic(
   () => import('@/components/site/workbench-3d').then((m) => m.Workbench3D),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[calc(100vh-3.5rem)] w-full items-center justify-center bg-[#06090F] font-mono text-xs text-sky-400">
+        Cargando escritorio 3D interactivo…
+      </div>
+    ),
+  }
 )
 
 const STACK_GROUPS: Array<{
@@ -60,15 +66,6 @@ const STACK_GROUPS: Array<{
   },
 ]
 
-const SECTION_ORDER: SpatialSection[] = [
-  'inicio',
-  'sobre-mi',
-  'stack',
-  'proyectos',
-  'certificados',
-  'contacto',
-]
-
 function SectionHeading({
   id,
   eyebrow,
@@ -102,315 +99,85 @@ interface HomeViewProps {
 }
 
 /**
- * @description Full-bleed 3D spatial experience with per-section camera waypoints and instant 2D vertical fallback.
+ * @description 3D Laptop Workstation OS experience (zero overlapping floating cards) with instant 2D vertical portfolio toggle.
  */
 export function HomeView({ profile, projects, certificates }: HomeViewProps) {
-  const { locale, viewMode, setViewMode, t } = usePortfolio()
-  const [activeSection, setActiveSection] = useState<SpatialSection>('inicio')
-  const [monitorFocused, setMonitorFocused] = useState(false)
+  const { locale, setLocale, viewMode, setViewMode, t } = usePortfolio()
+  const [lidClosed, setLidClosed] = useState(false)
+  const [resetSignal, setResetSignal] = useState(0)
 
-  const displayProjectCount = projects.length
-  const displayCertCount = certificates.length
-
-  const name = profile?.full_name ?? 'Lorenzo Roca'
-  const photo = profile?.profile_image_url
-  const github = profile?.github_url ?? CONTACT.github
-  const linkedin = profile?.linkedin_url ?? CONTACT.linkedin
   const cvUrl = locale === 'en' ? '/cv/CV_Lorenzo_Roca_EN.pdf' : '/cv/CV_Lorenzo_Roca_ES.pdf'
 
-  const handleSelectSection = useCallback((section: SpatialSection) => {
-    setActiveSection(section)
-    setMonitorFocused(false)
-  }, [])
-
-  const handleToggleMonitorFocus = useCallback(() => {
-    setMonitorFocused((prev) => !prev)
-  }, [])
-
-  useEffect(() => {
-    if (viewMode !== '3d') return
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setActiveSection('inicio')
-        setMonitorFocused(false)
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [viewMode])
-
   if (viewMode === '3d') {
-    const activeIdx = SECTION_ORDER.indexOf(activeSection)
-    const prevSection = activeIdx > 0 ? SECTION_ORDER[activeIdx - 1] : null
-    const nextSection = activeIdx < SECTION_ORDER.length - 1 ? SECTION_ORDER[activeIdx + 1] : null
-
     return (
-      <div className="relative h-screen w-screen overflow-hidden bg-[#060a11] text-slate-200">
-        <Workbench3D
-          locale={locale}
-          projectCount={displayProjectCount}
-          activeSection={activeSection}
-          monitorFocused={monitorFocused}
-          onToggleMonitorFocus={handleToggleMonitorFocus}
-          onSelectSection={handleSelectSection}
-          onFallback2D={() => setViewMode('2d')}
-          labels={t.hero.sceneControls}
-        />
-
-        <SiteNav
-          cvUrl={profile?.cv_pdf_url ?? null}
-          activeSection={activeSection}
-          onSelectSection={handleSelectSection}
-        />
-
-        {/* 3D Hero Floating Spatial Card (left side, leaves wide 3D world open on right) */}
-        {activeSection === 'inicio' && !monitorFocused ? (
-          <main className="pointer-events-none relative z-10 mx-auto flex h-[calc(100vh-4rem)] max-w-6xl items-center px-5 pb-14">
-            <div className="pointer-events-auto max-w-xl rounded-2xl border border-white/15 bg-[#070c14]/72 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl sm:p-7">
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                {/* Prominent Profile Photo */}
-                <div className="relative shrink-0 self-start sm:self-center">
-                  <div
-                    aria-hidden
-                    className="absolute -inset-2 rounded-full bg-gradient-to-tr from-sky-500/35 to-cyan-400/20 blur-md"
-                  />
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-sky-400/60 bg-[#111721] shadow-lg sm:h-28 sm:w-28">
-                    {photo ? (
-                      <Image
-                        src={photo}
-                        alt={name}
-                        fill
-                        sizes="112px"
-                        className="object-cover"
-                        priority
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-500">
-                        LR
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-300">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    {t.hero.availability}
-                  </p>
-                  <h1 className="font-display mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                    {name}
-                  </h1>
-                  <p className="mt-1 text-sm font-medium text-sky-300">{t.hero.subtitle}</p>
-                </div>
-              </div>
-
-              <p className="mt-4 text-[13.5px] leading-relaxed text-slate-300">{t.hero.pitch}</p>
-
-              <div className="mt-5 flex flex-wrap gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => handleSelectSection('proyectos')}
-                  className="rounded-lg bg-sky-500 px-3.5 py-2 text-xs font-semibold text-slate-950 transition-colors hover:bg-sky-400 sm:text-sm"
-                >
-                  {t.hero.ctaProjects}
-                </button>
-                <a
-                  href={github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-medium text-slate-100 transition-colors hover:bg-white/10 sm:text-sm"
-                >
-                  GitHub
-                </a>
-                <a
-                  href={linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-medium text-slate-100 transition-colors hover:bg-white/10 sm:text-sm"
-                >
-                  LinkedIn
-                </a>
-                <a
-                  href={cvUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg border border-sky-400/35 bg-sky-400/10 px-3.5 py-2 text-xs font-medium text-sky-200 transition-colors hover:bg-sky-400/20 sm:text-sm"
-                >
-                  {t.hero.ctaCv}
-                </a>
-              </div>
-
-              <dl className="mt-5 grid grid-cols-4 gap-3 border-t border-white/10 pt-4">
-                <div>
-                  <dt className="font-display text-lg font-bold text-white">{displayProjectCount}</dt>
-                  <dd className="text-[10px] leading-tight text-slate-400">{t.hero.stats.projects}</dd>
-                </div>
-                <div>
-                  <dt className="font-display text-lg font-bold text-white">{displayCertCount}</dt>
-                  <dd className="text-[10px] leading-tight text-slate-400">{t.hero.stats.certificates}</dd>
-                </div>
-                <div>
-                  <dt className="font-display text-lg font-bold text-white">2021</dt>
-                  <dd className="text-[10px] leading-tight text-slate-400">{t.hero.stats.supportSince}</dd>
-                </div>
-                <div>
-                  <dt className="font-display text-lg font-bold text-white">
-                    {locale === 'en' ? '5th' : '5.º'}
-                  </dt>
-                  <dd className="text-[10px] leading-tight text-slate-400">{t.hero.stats.semester}</dd>
-                </div>
-              </dl>
-            </div>
-          </main>
-        ) : null}
-
-        {/* Spatial Frosted Glass Section Overlay (for Sobre mí, Stack, Proyectos, Certificados, Contacto) */}
-        {activeSection !== 'inicio' ? (
-          <div className="pointer-events-none fixed inset-0 top-14 bottom-14 z-30 flex items-center justify-center px-4 py-4">
-            <section
-              role="region"
-              aria-label={activeSection}
-              className="pointer-events-auto relative flex max-h-full w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-sky-400/25 bg-[#080d16]/84 shadow-2xl shadow-black/70 backdrop-blur-xl"
-            >
-              {/* Overlay Header with Close & Section Stepper */}
-              <div className="flex items-center justify-between border-b border-white/10 px-6 py-3.5">
-                <div className="flex items-center gap-2 font-mono text-xs text-sky-300">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                  <span>{activeSection.toUpperCase()}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {prevSection ? (
-                    <button
-                      type="button"
-                      onClick={() => handleSelectSection(prevSection)}
-                      className="rounded-md border border-white/15 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-300 hover:bg-white/10"
-                    >
-                      ←
-                    </button>
-                  ) : null}
-                  {nextSection ? (
-                    <button
-                      type="button"
-                      onClick={() => handleSelectSection(nextSection)}
-                      className="rounded-md border border-white/15 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-300 hover:bg-white/10"
-                    >
-                      →
-                    </button>
-                  ) : null}
-                  <button
-                    type="button"
-                    onClick={() => handleSelectSection('inicio')}
-                    aria-label="Cerrar sección"
-                    className="ml-2 rounded-md border border-white/15 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-200 hover:border-sky-400/40 hover:bg-sky-500/15"
-                  >
-                    × {locale === 'en' ? 'Close' : 'Cerrar'}
-                  </button>
-                </div>
-              </div>
-
-              {/* Scrollable Section Body */}
-              <div className="overflow-y-auto p-6 sm:p-8">
-                {activeSection === 'sobre-mi' ? (
-                  <div>
-                    <SectionHeading id="sobre-mi" eyebrow={t.about.eyebrow} title={t.about.title} />
-                    <div className="grid gap-8 md:grid-cols-[1.2fr_1fr]">
-                      <div className="space-y-4 text-sm leading-relaxed text-slate-300">
-                        <p>{t.about.p1}</p>
-                        <p>{t.about.p2}</p>
-                        <p>{t.about.p3}</p>
-                      </div>
-                      <div className="rounded-xl border border-white/10 bg-[#111721]/90 p-5">
-                        <h3 className="font-display text-sm font-semibold text-white">
-                          {t.about.howTitle}
-                        </h3>
-                        <ul className="mt-4 space-y-3">
-                          {t.about.howItems.map((item) => (
-                            <li
-                              key={item}
-                              className="flex gap-3 text-[13px] leading-relaxed text-slate-400"
-                            >
-                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-400" />
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-
-                {activeSection === 'stack' ? (
-                  <div>
-                    <SectionHeading
-                      id="stack"
-                      eyebrow={t.stack.eyebrow}
-                      title={t.stack.title}
-                      description={t.stack.description}
-                    />
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {STACK_GROUPS.map((group) => (
-                        <div
-                          key={group.labelEs}
-                          className="rounded-xl border border-white/10 bg-[#111721]/90 p-5"
-                        >
-                          <h3 className="font-mono text-xs font-semibold uppercase tracking-wide text-sky-400">
-                            {locale === 'en' ? group.labelEn : group.labelEs}
-                          </h3>
-                          <div className="mt-3 flex flex-wrap gap-1.5">
-                            {(locale === 'en' && group.itemsEn ? group.itemsEn : group.itemsEs).map(
-                              (item) => (
-                                <span
-                                  key={item}
-                                  className="rounded-md border border-white/10 bg-white/5 px-2 py-1 font-mono text-[11px] text-slate-300"
-                                >
-                                  {item}
-                                </span>
-                              )
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-
-                {activeSection === 'proyectos' ? (
-                  <div>
-                    <SectionHeading
-                      id="proyectos"
-                      eyebrow={t.projects.eyebrow}
-                      title={t.projects.title}
-                      description={t.projects.description}
-                    />
-                    <ProjectsExplorer projects={projects} />
-                  </div>
-                ) : null}
-
-                {activeSection === 'certificados' ? (
-                  <div>
-                    <SectionHeading
-                      id="certificados"
-                      eyebrow={t.certificates.eyebrow}
-                      title={t.certificates.title}
-                    />
-                    <CertificatesGrid certificates={certificates} />
-                  </div>
-                ) : null}
-
-                {activeSection === 'contacto' ? (
-                  <div>
-                    <SectionHeading
-                      id="contacto"
-                      eyebrow={t.contact.eyebrow}
-                      title={t.contact.title}
-                    />
-                    <ContactSection profile={profile} />
-                  </div>
-                ) : null}
-              </div>
-            </section>
+      <div className="relative h-screen w-screen overflow-hidden bg-[#050911] text-slate-200">
+        {/* Minimal Corner Floating Pill Bar (zero obstruction of the 3D Laptop) */}
+        <div className="pointer-events-none fixed inset-x-4 top-3 z-30 flex items-center justify-between gap-2">
+          <div className="pointer-events-auto flex items-center gap-2 rounded-lg border border-white/10 bg-[#070c14]/75 px-3 py-1.5 backdrop-blur-md">
+            <span className="font-mono text-xs font-bold text-sky-300">LR</span>
+            <span className="hidden text-xs font-semibold text-slate-200 sm:inline">
+              Lorenzo Roca
+            </span>
           </div>
-        ) : null}
+
+          <div className="pointer-events-auto flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#070c14]/75 p-1 backdrop-blur-md">
+            <button
+              type="button"
+              onClick={() => {
+                setLidClosed(false)
+                setResetSignal((n) => n + 1)
+              }}
+              className="rounded px-2.5 py-1 font-mono text-[11px] text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              {t.hero.sceneControls.resetCamera}
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('2d')}
+              className="rounded border border-sky-400/35 bg-sky-500/15 px-2.5 py-1 font-mono text-[11px] font-semibold text-sky-300 transition-colors hover:bg-sky-500/25"
+            >
+              {t.hero.sceneControls.switch2d}
+            </button>
+            <button
+              type="button"
+              onClick={() => setLocale(locale === 'es' ? 'en' : 'es')}
+              className="rounded border border-white/15 bg-white/5 px-2 py-1 font-mono text-[11px] text-slate-200 transition-colors hover:bg-white/10"
+            >
+              {locale.toUpperCase()}
+            </button>
+            <a
+              href={cvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded bg-sky-500 px-2.5 py-1 text-[11px] font-semibold text-slate-950 transition-colors hover:bg-sky-400"
+            >
+              CV
+            </a>
+          </div>
+        </div>
+
+        <Workbench3D
+          lidClosed={lidClosed}
+          onToggleLid={() => setLidClosed((prev) => !prev)}
+          resetSignal={resetSignal}
+          onSwitch2D={() => setViewMode('2d')}
+          labels={{
+            dragHint: t.hero.sceneControls.dragHint,
+            openLid: locale === 'en' ? 'Open Laptop' : 'Abrir Laptop',
+            closeLid: locale === 'en' ? 'Close Lid' : 'Cerrar Tapa',
+            resetCamera: t.hero.sceneControls.resetCamera,
+            switch2d: t.hero.sceneControls.switch2d,
+          }}
+        >
+          <LaptopOS
+            profile={profile}
+            projects={projects}
+            certificates={certificates}
+            onSwitch2D={() => setViewMode('2d')}
+            onToggleLid={() => setLidClosed((prev) => !prev)}
+            onResetCamera={() => setResetSignal((n) => n + 1)}
+          />
+        </Workbench3D>
       </div>
     )
   }
@@ -422,8 +189,8 @@ export function HomeView({ profile, projects, certificates }: HomeViewProps) {
 
       <Hero
         profile={profile}
-        projectCount={displayProjectCount}
-        certificateCount={displayCertCount}
+        projectCount={projects.length}
+        certificateCount={certificates.length}
       />
 
       <section className="border-b border-white/10">

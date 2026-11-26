@@ -26,10 +26,10 @@ export const COPY = {
         semester: 'semestre de Análisis de Sistemas',
       },
       sceneControls: {
-        dragHint: 'ARRASTRA · RUEDA PARA ZOOM · CLIC EN MONITOR',
-        zoomMonitor: 'Enfocar monitor',
-        resetCamera: 'Vista estación',
-        switch2d: 'Vista rápida 2D',
+        dragHint: 'ARRASTRA FUERA: ORBITAR · RUEDA: ZOOM · BORDE TAPA: ABRIR/CERRAR · CLIC OBJETOS MESA',
+        zoomMonitor: 'Enfocar laptop',
+        resetCamera: 'Centrar Laptop',
+        switch2d: 'Vista 2D',
       },
     },
     about: {
@@ -107,10 +107,10 @@ export const COPY = {
         semester: 'semester in Systems Analysis',
       },
       sceneControls: {
-        dragHint: 'DRAG · WHEEL TO ZOOM · CLICK MONITOR',
-        zoomMonitor: 'Focus monitor',
-        resetCamera: 'Desk view',
-        switch2d: 'Fast 2D view',
+        dragHint: 'DRAG OUTSIDE: ORBIT · WHEEL: ZOOM · LID EDGE: OPEN/CLOSE · CLICK DESK PROPS',
+        zoomMonitor: 'Focus laptop',
+        resetCamera: 'Center Laptop',
+        switch2d: '2D View',
       },
     },
     about: {

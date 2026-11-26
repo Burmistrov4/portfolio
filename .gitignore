@@ -32,3 +32,5 @@ next-env.d.ts
 .vs/
 docs/architecture/
 docs/cv/rendercv_output/
+.vercel
+.env*

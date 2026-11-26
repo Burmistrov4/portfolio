@@ -28,11 +28,8 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
       setLocaleState(savedLocale)
     }
     const savedMode = window.localStorage.getItem('portfolio_view_mode')
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (savedMode === '2d' || savedMode === '3d') {
       setViewModeState(savedMode)
-    } else if (prefersReduced) {
-      setViewModeState('2d')
     }
   }, [])
 
