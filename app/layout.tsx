@@ -1,11 +1,17 @@
 import type { Metadata } from 'next'
+import { Inter, JetBrains_Mono, Space_Grotesk } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
+import { PortfolioProvider } from '@/components/site/portfolio-context'
 import './globals.css'
 
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' })
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains-mono' })
+
 const SITE_URL = 'https://lorenzoroca.vercel.app'
-const TITLE = 'Lorenzo Roca — Desarrollo de software y soporte TI | Valencia, Carabobo'
+const TITLE = 'Lorenzo Roca — Desarrollo Full-Stack, Sistemas 3D y Soporte TI'
 const DESCRIPTION =
-  'Portafolio de Lorenzo Roca, estudiante de Análisis de Sistemas (IUTEPI): proyectos de software con repositorio, demo y documentación, soporte técnico independiente desde 2021 y certificados.'
+  'Portafolio de Lorenzo Roca, estudiante de 5.º semestre de Análisis de Sistemas (IUTEPI): proyectos full-stack con arquitectura documentada, escena interactiva Three.js + GLSL y soporte TI desde 2021.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -16,9 +22,10 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   keywords: [
     'Lorenzo Roca',
-    'desarrollador junior Valencia',
+    'desarrollador full-stack',
     'analista de sistemas',
-    'soporte técnico Valencia',
+    'Three.js',
+    'GLSL',
     'Python',
     'TypeScript',
     'React',
@@ -26,7 +33,7 @@ export const metadata: Metadata = {
     'FastAPI',
     'Flutter',
     'SQL',
-    'Venezuela',
+    'Valencia',
     'Carabobo',
   ],
   authors: [{ name: 'Lorenzo Roca' }],
@@ -57,8 +64,7 @@ export const metadata: Metadata = {
 }
 
 /**
- * @description Root layout: metadata del sitio y proveedor de tema.
- * El fondo oscuro es parte de la identidad visual del portafolio público.
+ * @description Root layout: Google typography triad, metadata, theme and portfolio context.
  */
 export default function RootLayout({
   children,
@@ -66,10 +72,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es">
-      <body className="font-sans antialiased bg-[#0A0E14]">
+    <html
+      lang="es"
+      className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+    >
+      <body className="bg-[#0A0E14] font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
+          <PortfolioProvider>{children}</PortfolioProvider>
         </ThemeProvider>
       </body>
     </html>

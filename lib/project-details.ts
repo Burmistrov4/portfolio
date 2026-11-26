@@ -1,12 +1,8 @@
 /**
- * Contenido editorial de los proyectos.
+ * Contenido editorial y curación técnica de los proyectos y certificados.
  *
- * Fuente: los repositorios reales de Lorenzo (INCES-LMS-PROJECT, LogisticaBackend,
- * TechLoan, Adrialga) leidos el 2026-10-14. Nada de esto se invento: cada afirmacion
- * corresponde a codigo, README o demo existente.
- *
- * Se usa como capa de presentacion sobre la tabla `projects` de Supabase: si el
- * proyecto no tiene ficha aqui, la pagina de detalle muestra el texto de la base.
+ * Fuente: repositorios reales de Lorenzo (INCES-LMS-PROJECT, LogisticaBackend,
+ * TechLoan, Adrialga) y diagramas de arquitectura en SVG.
  */
 
 export interface StackNote {
@@ -17,6 +13,7 @@ export interface StackNote {
 export interface ProjectDetail {
   key: string
   featured: boolean
+  legacy?: boolean
   year: string
   role: string
   tagline: string
@@ -25,7 +22,8 @@ export interface ProjectDetail {
   stackNotes: StackNote[]
   contribution: string
   evidence: string[]
-  /** Tecnologias a mostrar cuando la base de datos no las tiene cargadas. */
+  diagramPath?: string
+  /** Tecnologías a mostrar cuando la base de datos no las tiene cargadas. */
   fallbackTech: string[]
 }
 
@@ -34,7 +32,7 @@ export const PROJECT_DETAILS: ProjectDetail[] = [
     key: 'inces-lms',
     featured: true,
     year: '2026 — en curso',
-    role: 'Desarrollo full-stack · equipo de 4 estudiantes · proyecto de grado (IUTEPI)',
+    role: 'Desarrollo full-stack · equipo de 4 estudiantes · proyecto académico (IUTEPI)',
     tagline: 'Plataforma de gestión académica para el INCES La Isabelica',
     problem:
       'El Centro de Formación Socialista Nacional de Soldadura "Rafael Urdaneta" gestiona inscripciones, cupos, cuadrante de horarios, asistencia y calificaciones con planillas y herramientas genéricas que no se adaptan a sus reglas. La información se dispersa y cada proceso depende de trabajo manual.',
@@ -58,6 +56,7 @@ export const PROJECT_DETAILS: ProjectDetail[] = [
       'Repositorio con README de estado, migraciones versionadas y suites de pruebas.',
       'Contrato OpenAPI 3.1 versionado junto al código.',
     ],
+    diagramPath: '/diagrams/inces-lms.svg',
     fallbackTech: ['Flutter', 'Dart', 'Node.js', 'Fastify', 'Zod', 'Supabase', 'PostgreSQL', 'Cloudflare R2', 'OpenAPI'],
   },
   {
@@ -83,9 +82,10 @@ export const PROJECT_DETAILS: ProjectDetail[] = [
     contribution:
       'Proyecto personal completo: modelo de datos, lógica de cotización, API, interfaz y despliegue.',
     evidence: [
-      'Demo desplegada y en uso (enlace abajo).',
+      'Demo desplegada y en uso (enlace arriba).',
       'Lógica de cálculo separada y cubierta por pruebas.',
     ],
+    diagramPath: '/diagrams/vzla-cargo-hub.svg',
     fallbackTech: ['Next.js', 'TypeScript', 'Python', 'FastAPI', 'Supabase', 'Vercel'],
   },
   {
@@ -113,13 +113,15 @@ export const PROJECT_DETAILS: ProjectDetail[] = [
       'Proyecto individual: modelo de datos, lógica de reservas y préstamos, seguridad, interfaz y pruebas de integración.',
     evidence: [
       'Repositorio con README detallado y capturas.',
-      'Demo desplegada (enlace abajo).',
+      'Demo desplegada (enlace arriba).',
     ],
+    diagramPath: '/diagrams/techloan.svg',
     fallbackTech: ['Python', 'Flask', 'SQLite3', 'Jinja2', 'scrypt', 'CSRF'],
   },
   {
     key: 'boletos-cine',
     featured: false,
+    legacy: true,
     year: '2025',
     role: 'Práctica de fundamentos · VB.NET',
     tagline: 'Cartelera y venta de boletos con reglas de descuento',
@@ -138,6 +140,7 @@ export const PROJECT_DETAILS: ProjectDetail[] = [
   {
     key: 'calculadora-vbnet',
     featured: false,
+    legacy: true,
     year: '2025',
     role: 'Práctica de fundamentos · VB.NET',
     tagline: 'Calculadora de escritorio con manejo de decimales',
@@ -161,7 +164,7 @@ function normalize(text: string): string {
     .replace(/[\u0300-\u036f]/g, '')
 }
 
-/** Empareja el titulo de la base de datos con su ficha editorial. */
+/** Empareja el título de la base de datos con su ficha editorial. */
 export function matchDetail(title: string): ProjectDetail | null {
   const t = normalize(title)
   if (t.includes('inces')) return PROJECT_DETAILS[0]
@@ -178,7 +181,7 @@ export function techOf(project: { title: string; technologies: string[] | null }
   return matchDetail(project.title)?.fallbackTech ?? []
 }
 
-/** Texto corto para las tarjetas: la primera frase util del resumen. */
+/** Texto corto para las tarjetas: la primera frase útil del resumen. */
 export function shortSummary(summary: string | null): string {
   if (!summary) return ''
   const clean = summary.replace(/^[-•\s]+/, '').replace(/\s+/g, ' ').trim()
@@ -186,4 +189,32 @@ export function shortSummary(summary: string | null): string {
   const cut = clean.slice(0, 180)
   const lastSpace = cut.lastIndexOf(' ')
   return cut.slice(0, lastSpace > 0 ? lastSpace : 180) + '…'
+}
+
+/** Clasifica si un certificado es técnico (TI / Software) y corrige descripciones placeholder. */
+export function curateCertificate(cert: {
+  title: string
+  description: string | null
+}): { isTechnical: boolean; cleanDescription: string | null } {
+  const t = normalize(cert.title)
+  const isNonTech =
+    t.includes('manipulacion de alimentos') ||
+    t.includes('montacargas') ||
+    t.includes('panaderia')
+
+  const rawDesc = (cert.description ?? '').trim()
+  let cleanDescription: string | null = rawDesc || null
+  if (!rawDesc || rawDesc.toLowerCase() === 'test') {
+    if (t.includes('data science')) {
+      cleanDescription =
+        'Aplicación de Python para análisis exploratorio, limpieza y manipulación de datos orientados a ciencia de datos.'
+    } else {
+      cleanDescription = null
+    }
+  }
+
+  return {
+    isTechnical: !isNonTech,
+    cleanDescription,
+  }
 }

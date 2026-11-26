@@ -1,0 +1,110 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/rendercv/rendercv/refs/tags/v2.8/schema.json
+cv:
+  name: Lorenzo Roca
+  headline: Systems Analysis Student (5th Semester) · Full-Stack Developer & IT Support
+  location: Valencia, Carabobo, Venezuela
+  email: lorenzoroca333@gmail.com
+  phone: "+584124661379"
+  photo: profile.png
+  website: https://lorenzoroca.vercel.app/
+  social_networks:
+    - network: LinkedIn
+      username: lorenzo-roca-131391190
+    - network: GitHub
+      username: Burmistrov4
+  sections:
+    Professional Summary:
+      - 5th-semester Systems Analysis student at IUTEPI with experience since 2021 in PC/laptop hardware & software support and full-stack delivery across four real software projects. Skilled in **Python, TypeScript, React, Next.js, FastAPI, Flutter, and PostgreSQL/MySQL**, applying schema validation, JWT authentication, and automated testing. Immediately available for remote, hybrid, or on-site roles.
+    Technical Experience:
+      - company: Independent Practice
+        position: IT Support & Hardware Maintenance Technician
+        start_date: 2021-01
+        end_date: present
+        location: Valencia, Venezuela
+        highlights:
+          - Structured diagnostics of hardware and software failures on desktops and laptops, preventive maintenance, and component replacement.
+          - Windows and Linux OS installation, local network troubleshooting, and end-user technical support.
+    Selected Projects:
+      - name: "[INCES LMS — Academic Management System](https://lorenzoroca.vercel.app)"
+        date: 2026 – present
+        location: Academic Team Project · IUTEPI
+        highlights:
+          - Web/mobile LMS built in a 4-student team with academic supervision for the Rafael Urdaneta National Welding Center (INCES).
+          - "**Stack:** Flutter/Dart, Node.js/TypeScript API (Fastify + Zod), Supabase/PostgreSQL (RLS & triggers), JWT Auth, and Cloudflare R2 presigned URLs."
+          - Generated OpenAPI 3.1 contract from validation schemas, versioned SQL migrations, and automated frontend, backend, and database test suites.
+      - name: "[Vzla Cargo Hub — Logistics Quoting Platform](https://lorenzoroca.vercel.app)"
+        date: Apr – Sep 2026
+        location: Independent Project · Deployed
+        highlights:
+          - Production web platform for sea and air freight quoting using weight, volume, and carrier-specific pricing rules.
+          - "**Next.js/TypeScript** frontend on Vercel paired with a decoupled **Python/FastAPI** tariff service on Supabase with automated validation tests."
+      - name: "[TechLoan — Equipment Reservation & Audit System](https://lorenzoroca.vercel.app)"
+        date: Oct 2026
+        location: Academic Project · Programming III
+        highlights:
+          - Offline-capable booking and lending platform in **Python/Flask 3.1, SQLite3, and Jinja2** with overlap prevention, KPIs, and audit logs.
+          - Layered architecture, **scrypt** password hashing, CSRF protection, role-based access control, and integration tests.
+      - name: "[Adrialga — Hardware Store POS & Inventory System](https://lorenzoroca.vercel.app)"
+        date: Sep – Oct 2026
+        location: Academic Project · Systems Analysis II
+        highlights:
+          - POS, cash register, inventory, and supplier modules featuring transactional workflows, testing, and phased engineering docs.
+          - "**Flutter** frontend, **Node.js/Express** backend with Prisma on **MySQL**, and a **Python/FastAPI** microservice."
+    Education:
+      - institution: IUTEPI (University Institute of Technology)
+        area: Systems Analysis (5th Semester, in progress)
+        degree: Associate / TSU
+        date: in progress
+        location: Valencia, Venezuela
+      - institution: Instituto Keys
+        area: PC Assembly & Computer Networking (6 months)
+        degree: Certificate
+        date: completed
+        location: Valencia, Venezuela
+    Skills & Languages:
+      - label: Languages & Frontend
+        details: Python, TypeScript, JavaScript, Dart, C#, SQL, HTML, CSS, React, Next.js, Flutter, Tailwind CSS, Three.js
+      - label: Backend & Databases
+        details: FastAPI, Node.js, Fastify, Express, Flask, REST APIs, OpenAPI 3.1, JWT, PostgreSQL, MySQL, SQLite, Supabase (RLS), Prisma
+      - label: Infrastructure & Support
+        details: Git, GitHub, Vercel, Cloudflare R2, Docker, Windows, Linux, networking, hardware diagnostics
+      - label: Languages & Availability
+        details: Spanish (Native) · English (B2 technical & conversational) · Immediate availability (Remote / Hybrid / On-site)
+design:
+  theme: engineeringclassic
+  page:
+    size: us-letter
+    top_margin: 0.42in
+    bottom_margin: 0.42in
+    left_margin: 0.48in
+    right_margin: 0.48in
+    show_footer: false
+    show_top_note: false
+  typography:
+    font_size:
+      body: 9.2pt
+      name: 22pt
+      headline: 9.8pt
+      connections: 9pt
+      section_titles: 1.15em
+  header:
+    photo_width: 2.3cm
+    photo_position: right
+    space_below_name: 0.2cm
+    space_below_headline: 0.16cm
+    space_below_connections: 0.24cm
+  section_titles:
+    space_above: 0.3cm
+    space_below: 0.16cm
+  sections:
+    space_between_regular_entries: 0.65em
+    space_between_text_based_entries: 0.2em
+locale:
+  language: english
+settings:
+  current_date: 2026-11-25
+  render_command:
+    dont_generate_markdown: true
+    dont_generate_html: true
+    dont_generate_png: false
+  pdf_title: Lorenzo Roca - CV (EN)

@@ -3,8 +3,9 @@
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import type { Project } from '@/lib/portfolio'
+import type { Project } from '@/lib/portfolio-types'
 import { matchDetail, shortSummary, techOf } from '@/lib/project-details'
+import { usePortfolio } from '@/components/site/portfolio-context'
 
 interface ProjectsExplorerProps {
   projects: Project[]
@@ -12,72 +13,96 @@ interface ProjectsExplorerProps {
 
 function TechChip({ label }: { label: string }) {
   return (
-    <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-medium text-slate-300">
+    <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[11px] font-medium text-slate-300">
       {label}
     </span>
   )
 }
 
 /**
- * @description Grid de proyectos con filtro por tecnologia.
- * El contenido es visible por defecto: no depende de animaciones ni de
- * observadores de interseccion para mostrarse.
+ * @description Filterable project grid prioritizing flagship engineering systems over 2025 academic exercises.
  */
 export function ProjectsExplorer({ projects }: ProjectsExplorerProps) {
   const [selectedTech, setSelectedTech] = useState<string | null>(null)
+  const [showLegacy, setShowLegacy] = useState(false)
+  const { t } = usePortfolio()
 
-  const sorted = useMemo(() => {
-    return [...projects].sort((a, b) => {
+  const { flagship, legacy } = useMemo(() => {
+    const ordered = [...projects].sort((a, b) => {
       const fa = matchDetail(a.title)?.featured ? 0 : 1
       const fb = matchDetail(b.title)?.featured ? 0 : 1
       return fa - fb
     })
+    return {
+      flagship: ordered.filter((p) => !matchDetail(p.title)?.legacy),
+      legacy: ordered.filter((p) => matchDetail(p.title)?.legacy),
+    }
   }, [projects])
+
+  const pool = useMemo(
+    () => (showLegacy ? [...flagship, ...legacy] : flagship),
+    [showLegacy, flagship, legacy]
+  )
 
   const allTech = useMemo(() => {
     const set = new Set<string>()
-    sorted.forEach((p) => techOf(p).forEach((t) => set.add(t)))
+    pool.forEach((p) => techOf(p).forEach((tech) => set.add(tech)))
     return Array.from(set).sort((a, b) => a.localeCompare(b))
-  }, [sorted])
+  }, [pool])
 
   const visible = useMemo(() => {
-    if (!selectedTech) return sorted
-    return sorted.filter((p) => techOf(p).includes(selectedTech))
-  }, [sorted, selectedTech])
+    if (!selectedTech) return pool
+    return pool.filter((p) => techOf(p).includes(selectedTech))
+  }, [pool, selectedTech])
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setSelectedTech(null)}
-          className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-            selectedTech === null
-              ? 'bg-sky-500 text-slate-950'
-              : 'border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
-          }`}
-        >
-          Todos
-        </button>
-        {allTech.map((tech) => (
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap gap-2">
           <button
-            key={tech}
             type="button"
-            onClick={() => setSelectedTech(selectedTech === tech ? null : tech)}
+            onClick={() => setSelectedTech(null)}
             className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-              selectedTech === tech
+              selectedTech === null
                 ? 'bg-sky-500 text-slate-950'
                 : 'border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
             }`}
           >
-            {tech}
+            {t.projects.all}
           </button>
-        ))}
+          {allTech.map((tech) => (
+            <button
+              key={tech}
+              type="button"
+              onClick={() => setSelectedTech(selectedTech === tech ? null : tech)}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                selectedTech === tech
+                  ? 'bg-sky-500 text-slate-950'
+                  : 'border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
+              }`}
+            >
+              {tech}
+            </button>
+          ))}
+        </div>
+
+        {legacy.length > 0 ? (
+          <button
+            type="button"
+            onClick={() => {
+              setShowLegacy((prev) => !prev)
+              setSelectedTech(null)
+            }}
+            className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-[11px] text-slate-400 transition-colors hover:border-white/25 hover:text-slate-200"
+          >
+            {showLegacy ? t.projects.hideLegacy : t.projects.showLegacy} ({legacy.length})
+          </button>
+        ) : null}
       </div>
 
       {visible.length === 0 ? (
         <p className="rounded-lg border border-white/10 bg-white/5 p-6 text-sm text-slate-400">
-          No hay proyectos con esa tecnología.
+          {t.projects.empty}
         </p>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -106,25 +131,25 @@ export function ProjectsExplorer({ projects }: ProjectsExplorerProps) {
                     </div>
                   )}
                   {detail?.featured ? (
-                    <span className="absolute left-3 top-3 rounded-md bg-sky-500/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-950">
-                      Destacado
+                    <span className="absolute left-3 top-3 rounded-md bg-sky-500/90 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-slate-950">
+                      {t.projects.featured}
                     </span>
                   ) : null}
                 </div>
 
                 <div className="flex flex-1 flex-col p-5">
-                  <h3 className="text-base font-semibold text-white group-hover:text-sky-300">
+                  <h3 className="font-display text-base font-semibold text-white group-hover:text-sky-300">
                     {project.title}
                   </h3>
                   {detail ? (
-                    <p className="mt-1 text-xs text-sky-300/80">{detail.year}</p>
+                    <p className="mt-1 font-mono text-xs text-sky-300/80">{detail.year}</p>
                   ) : null}
                   <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-400">
                     {shortSummary(project.ai_summary) || detail?.tagline || ''}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-1.5">
-                    {tech.slice(0, 4).map((t) => (
-                      <TechChip key={t} label={t} />
+                    {tech.slice(0, 4).map((techLabel) => (
+                      <TechChip key={techLabel} label={techLabel} />
                     ))}
                     {tech.length > 4 ? <TechChip label={`+${tech.length - 4}`} /> : null}
                   </div>

@@ -27,3 +27,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local IDE & private diagram sources
+.vs/
+docs/architecture/
+docs/cv/rendercv_output/

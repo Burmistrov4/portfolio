@@ -1,4 +1,4 @@
-import { CONTACT } from '@/lib/portfolio'
+import { CONTACT } from '@/lib/portfolio-types'
 
 export function SiteFooter() {
   return (

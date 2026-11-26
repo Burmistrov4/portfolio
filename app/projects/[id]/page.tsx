@@ -156,6 +156,19 @@ export default async function ProjectPage({ params }: PageProps) {
               </dl>
             </Block>
 
+            {detail.diagramPath ? (
+              <Block title="Arquitectura del sistema">
+                <div className="overflow-hidden rounded-xl border border-white/10 bg-[#090d14] p-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={detail.diagramPath}
+                    alt={`Diagrama de arquitectura de ${project.title}`}
+                    className="h-auto w-full rounded-lg"
+                  />
+                </div>
+              </Block>
+            ) : null}
+
             <Block title="Mi aporte">
               <p>{detail.contribution}</p>
             </Block>
