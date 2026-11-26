@@ -246,9 +246,33 @@ export function Workbench3D({
     lidBack.position.set(0, 0.71, -0.005)
     lidPivot.add(lidBack)
 
-    // Glowing LR logo strip on back of laptop lid (visible when closed!)
-    const backLogo = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.08, 0.008), accentGlowMat)
-    backLogo.position.set(0, 0.72, -0.018)
+    // Glowing LR emblem on back of laptop lid (visible when closed!)
+    const logoCanvas = document.createElement('canvas')
+    logoCanvas.width = 512
+    logoCanvas.height = 256
+    const lctx = logoCanvas.getContext('2d')
+    if (lctx) {
+      lctx.fillStyle = '#0f172a'
+      lctx.fillRect(0, 0, 512, 256)
+      lctx.strokeStyle = 'rgba(56, 189, 248, 0.45)'
+      lctx.lineWidth = 4
+      lctx.strokeRect(14, 14, 484, 228)
+      lctx.fillStyle = '#38bdf8'
+      lctx.font = 'bold 112px monospace'
+      lctx.textAlign = 'center'
+      lctx.textBaseline = 'middle'
+      lctx.fillText('LR', 256, 112)
+      lctx.fillStyle = '#94a3b8'
+      lctx.font = '24px monospace'
+      lctx.fillText('LORENZO ROCA // 3D OS', 256, 198)
+    }
+    const logoTex = new THREE.CanvasTexture(logoCanvas)
+    const backLogo = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.68, 0.34),
+      new THREE.MeshBasicMaterial({ map: logoTex })
+    )
+    backLogo.rotation.y = Math.PI
+    backLogo.position.set(0, 0.72, -0.019)
     lidPivot.add(backLogo)
 
     // Screen Bezel Borders (interactive hover/click targets for opening/closing lid!)
@@ -285,6 +309,7 @@ export function Workbench3D({
 
     const lidInteractiveMeshes: THREE.Object3D[] = [
       topBezel,
+      bottomBezel,
       leftBezel,
       rightBezel,
       lidBack,
@@ -305,7 +330,7 @@ export function Workbench3D({
 
     // 5b. Articulated Desk Lamp (left-back)
     const lampGroup = new THREE.Group()
-    lampGroup.position.set(-1.74, 0, -0.68)
+    lampGroup.position.set(-1.92, 0, -0.78)
     deskGroup.add(lampGroup)
     const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.21, 0.04, 24), aluminumMat)
     lampBase.position.y = 0.02
@@ -358,14 +383,14 @@ export function Workbench3D({
       wireframe: true,
     })
     const coreMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(0.26, 2), coreMat)
-    coreMesh.position.set(1.66, 0.44, -0.35)
+    coreMesh.position.set(1.84, 0.44, -0.42)
     deskGroup.add(coreMesh)
 
     const corePedestal = new THREE.Mesh(
       new THREE.CylinderGeometry(0.28, 0.34, 0.06, 24),
       aluminumMat
     )
-    corePedestal.position.set(1.66, 0.03, -0.35)
+    corePedestal.position.set(1.84, 0.03, -0.42)
     deskGroup.add(corePedestal)
 
     const orbitRing = new THREE.Mesh(
@@ -513,7 +538,7 @@ export function Workbench3D({
       }
       e.preventDefault()
       const step = -Math.sign(e.deltaY) * 0.38
-      targetZoom = THREE.MathUtils.clamp(targetZoom + step, -3.4, 1.05)
+      targetZoom = THREE.MathUtils.clamp(targetZoom + step, -3.8, 1.05)
     }
 
     const domEl = renderer.domElement
@@ -535,18 +560,23 @@ export function Workbench3D({
 
     const clock = new THREE.Clock()
     let rafId = 0
+    let prevElapsed = 0
     let wasLidClosed = lidClosedRef.current
 
     const animate = () => {
       rafId = requestAnimationFrame(animate)
       const elapsed = clock.getElapsedTime()
+      const dt = Math.min(Math.max(elapsed - prevElapsed, 0.008), 0.08)
+      prevElapsed = elapsed
+      const damp = 1 - Math.exp(-dt * 8.5)
+      const dampFast = 1 - Math.exp(-dt * 10.5)
 
       if (lidClosedRef.current !== wasLidClosed) {
         wasLidClosed = lidClosedRef.current
         if (lidClosedRef.current) {
-          targetPitch = 0.58
-          targetYaw = 0.34
-          targetZoom = -1.75
+          targetPitch = 0.62
+          targetYaw = 0.28
+          targetZoom = -1.65
         } else {
           targetPitch = 0.08
           targetYaw = 0
@@ -572,7 +602,7 @@ export function Workbench3D({
 
       if (mouseBounce > 0.01) {
         mouseGroup.position.y = 0.028 + Math.sin(mouseBounce * Math.PI) * 0.035
-        mouseBounce = THREE.MathUtils.lerp(mouseBounce, 0, 0.14)
+        mouseBounce = THREE.MathUtils.lerp(mouseBounce, 0, dampFast)
       } else {
         mouseGroup.position.y = 0.028
       }
@@ -581,7 +611,7 @@ export function Workbench3D({
       const targetLidRot = lidClosedRef.current
         ? Math.PI / 2 - 0.02 - (lidHover ? 0.14 : 0)
         : -0.14 + (lidHover ? 0.07 : 0)
-      lidPivot.rotation.x = THREE.MathUtils.lerp(lidPivot.rotation.x, targetLidRot, 0.1)
+      lidPivot.rotation.x = THREE.MathUtils.lerp(lidPivot.rotation.x, targetLidRot, dampFast)
 
       // Hide DOM screen when lid folds shut so it never pokes through lid back
       const isVisible = lidPivot.rotation.x < 1.05
@@ -589,25 +619,25 @@ export function Workbench3D({
       screenEl.style.pointerEvents = isVisible ? 'auto' : 'none'
 
       // Smooth orbit + aspect-safe close-up laptop camera framing + mouse-wheel zoom
-      currentYaw = THREE.MathUtils.lerp(currentYaw, targetYaw, 0.09)
-      currentPitch = THREE.MathUtils.lerp(currentPitch, targetPitch, 0.09)
-      currentZoom = THREE.MathUtils.lerp(currentZoom, targetZoom, 0.1)
+      currentYaw = THREE.MathUtils.lerp(currentYaw, targetYaw, damp)
+      currentPitch = THREE.MathUtils.lerp(currentPitch, targetPitch, damp)
+      currentZoom = THREE.MathUtils.lerp(currentZoom, targetZoom, damp)
 
       const halfTan = Math.tan(THREE.MathUtils.degToRad(21))
       const fitV = 0.85 / halfTan
       const fitH = 1.24 / (halfTan * Math.max(camera.aspect, 0.75))
       const baseDist = Math.max(2.15, fitV, fitH)
-      const dist = THREE.MathUtils.clamp(baseDist - currentZoom, 1.28, 5.8)
+      const dist = THREE.MathUtils.clamp(baseDist - currentZoom, 1.28, 6.2)
 
       const orbitTarget = lidClosedRef.current
-        ? new THREE.Vector3(0, 0.15, -0.05)
+        ? new THREE.Vector3(0, 0.12, -0.02)
         : lookTarget
-      currentLookAt.lerp(orbitTarget, 0.08)
+      currentLookAt.lerp(orbitTarget, dampFast)
 
       const camX = currentLookAt.x + Math.sin(currentYaw) * dist
       const camY = currentLookAt.y + Math.sin(currentPitch) * dist * 0.85 + 0.08
       const camZ = currentLookAt.z + Math.cos(currentYaw) * Math.cos(currentPitch) * dist
-      camera.position.lerp(new THREE.Vector3(camX, Math.max(camY, 0.12), camZ), 0.1)
+      camera.position.lerp(new THREE.Vector3(camX, Math.max(camY, 0.12), camZ), dampFast)
       camera.lookAt(currentLookAt)
 
       renderer.render(scene, camera)
