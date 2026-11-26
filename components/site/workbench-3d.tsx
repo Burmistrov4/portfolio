@@ -314,10 +314,10 @@ export function Workbench3D({
     lidPivot.add(webcamDot)
 
     const webcamHit = new THREE.Mesh(
-      new THREE.SphereGeometry(0.045, 8, 8),
+      new THREE.SphereGeometry(0.08, 12, 12),
       new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
     )
-    webcamHit.position.set(0, 1.39, 0.034)
+    webcamHit.position.set(0, 1.39, 0.045)
     lidPivot.add(webcamHit)
 
     // Mount live React LaptopOS DOM into CSS3DObject flush inside bezel
@@ -526,7 +526,7 @@ export function Workbench3D({
       } else if (hit === 'core') {
         coreTurbo = !coreTurbo
         coreSecretHits++
-        if (coreSecretHits >= 5) {
+        if (coreSecretHits >= 3) {
           coreSecretHits = 0
           onSecretTriggerRef.current?.()
         }
@@ -790,6 +790,7 @@ export function Workbench3D({
       coreMat.dispose()
       starGeo.dispose()
       starMat.dispose()
+      logoTex.dispose()
       renderer.dispose()
       if (domEl.parentNode === webglContainer) webglContainer.removeChild(domEl)
       if (cssRenderer.domElement.parentNode === cssContainer) {

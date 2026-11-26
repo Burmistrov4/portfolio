@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type PointerEvent as ReactPointerEvent } from 'react'
 
 interface DoomPlayerProps {
   visible: boolean
@@ -47,6 +47,22 @@ interface StoredWad {
   data: Uint8Array
 }
 
+interface TouchPrefs {
+  enabled: boolean
+  size: 'sm' | 'md' | 'lg'
+  opacity: number
+  swapped: boolean
+  padStyle: 'cross' | 'split'
+}
+
+const DEFAULT_TOUCH_PREFS: TouchPrefs = {
+  enabled: false,
+  size: 'md',
+  opacity: 0.75,
+  swapped: false,
+  padStyle: 'cross',
+}
+
 const SCREEN_W = 320
 const SCREEN_H = 200
 
@@ -64,6 +80,7 @@ const KEY_MINUS = 0x2d
 const KEY_RSHIFT = 0x80 + 0x36
 const KEY_RCTRL = 0x80 + 0x1d
 const KEY_RALT = 0x80 + 0x38
+const KEY_SPACE = 32
 
 const KEYMAP: Record<string, number> = {
   ArrowRight: KEY_RIGHTARROW,
@@ -87,7 +104,7 @@ const KEYMAP: Record<string, number> = {
   ControlRight: KEY_RCTRL,
   AltLeft: KEY_RALT,
   AltRight: KEY_RALT,
-  Space: 32,
+  Space: KEY_SPACE,
   Comma: 44,
   Period: 46,
   Slash: 47,
@@ -168,8 +185,8 @@ function identifyWad(bytes: Uint8Array, filename: string): { file?: string; labe
 }
 
 /**
- * @description Self-hosted WebAssembly DOOM (1993) rendered directly to <canvas> inside CSS3D,
- * supporting built-in shareware doom1.wad and local user DOOM.WAD upload in-memory.
+ * @description Self-hosted WebAssembly DOOM (1993) rendered to <canvas> inside CSS3D,
+ * with local DOOM.WAD loader and customizable multi-touch mobile controls.
  */
 export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -178,6 +195,7 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
   const audioRef = useRef<AudioContext | null>(null)
   const runningRef = useRef(false)
   const visibleRef = useRef(visible)
+  const weaponIdxRef = useRef(1)
 
   const [ready, setReady] = useState(false)
   const [started, setStarted] = useState(false)
@@ -187,6 +205,41 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
   const [wadLabel, setWadLabel] = useState('DOOM Shareware v1.9')
   const [hasCustomWad, setHasCustomWad] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  const [touchPrefs, setTouchPrefs] = useState<TouchPrefs>(DEFAULT_TOUCH_PREFS)
+  const [customOpen, setCustomOpen] = useState(false)
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem('doom_touch_prefs')
+      const coarse =
+        window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0
+      if (saved) {
+        const parsed = JSON.parse(saved) as Partial<TouchPrefs>
+        setTouchPrefs({
+          ...DEFAULT_TOUCH_PREFS,
+          ...parsed,
+          enabled: typeof parsed.enabled === 'boolean' ? parsed.enabled : coarse,
+        })
+      } else if (coarse) {
+        setTouchPrefs((prev) => ({ ...prev, enabled: true }))
+      }
+    } catch {
+      // Ignore storage error
+    }
+  }, [])
+
+  const updateTouchPrefs = (patch: Partial<TouchPrefs>) => {
+    setTouchPrefs((prev) => {
+      const next = { ...prev, ...patch }
+      try {
+        window.localStorage.setItem('doom_touch_prefs', JSON.stringify(next))
+      } catch {
+        // Ignore
+      }
+      return next
+    })
+  }
 
   useEffect(() => {
     visibleRef.current = visible
@@ -320,7 +373,7 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
         setStatusText(
           locale === 'en'
             ? 'Engine ready · Click to start'
-            : 'Motor listo · Haz clic para jugar'
+            : 'Motor listo · Toca o haz clic para jugar'
         )
       },
     }
@@ -426,14 +479,29 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
     setStarted(true)
     runningRef.current = true
     canvas.focus()
-    try {
-      const pl = canvas.requestPointerLock?.() as unknown as Promise<void> | undefined
-      if (pl && typeof pl.catch === 'function') pl.catch(() => {})
-    } catch {
-      // Ignore pointer lock rejection cleanly
+    if (!touchPrefs.enabled && !window.matchMedia('(pointer: coarse)').matches) {
+      try {
+        const pl = canvas.requestPointerLock?.() as unknown as Promise<void> | undefined
+        if (pl && typeof pl.catch === 'function') pl.catch(() => {})
+      } catch {
+        // Ignore pointer lock rejection cleanly
+      }
     }
     mod.FS.chdir('/save')
     mod.callMain([])
+  }
+
+  const sendVirtualKey = (keyCode: number, isDown: boolean) => {
+    const mod = moduleRef.current
+    if (!mod || !runningRef.current) return
+    mod._I_WebKey(isDown ? 1 : 0, keyCode)
+  }
+
+  const cycleWeapon = () => {
+    weaponIdxRef.current = (weaponIdxRef.current % 5) + 1
+    const code = 48 + weaponIdxRef.current
+    sendVirtualKey(code, true)
+    window.setTimeout(() => sendVirtualKey(code, false), 90)
   }
 
   const handleUploadWad = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -466,17 +534,150 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
     window.location.reload()
   }
 
+  const padBtnCls =
+    touchPrefs.size === 'lg'
+      ? 'h-14 w-14 text-lg'
+      : touchPrefs.size === 'sm'
+        ? 'h-9 w-9 text-xs'
+        : 'h-11 w-11 text-sm'
+
+  const actionBtnCls =
+    touchPrefs.size === 'lg'
+      ? 'h-14 px-4 text-xs'
+      : touchPrefs.size === 'sm'
+        ? 'h-9 px-2.5 text-[10px]'
+        : 'h-11 px-3 text-[11px]'
+
+  const makeKeyButton = (keyCode: number, label: string, className: string, extraClick?: () => void) => (
+    <button
+      type="button"
+      onPointerDown={(e: ReactPointerEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (extraClick) extraClick()
+        else sendVirtualKey(keyCode, true)
+      }}
+      onPointerUp={(e: ReactPointerEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (!extraClick) sendVirtualKey(keyCode, false)
+      }}
+      onPointerLeave={() => {
+        if (!extraClick) sendVirtualKey(keyCode, false)
+      }}
+      onPointerCancel={() => {
+        if (!extraClick) sendVirtualKey(keyCode, false)
+      }}
+      className={`select-none touch-none rounded-lg border font-mono font-bold shadow-lg active:scale-95 ${className}`}
+    >
+      {label}
+    </button>
+  )
+
+  const movementPad = (
+    <div
+      style={{ opacity: touchPrefs.opacity }}
+      className={
+        touchPrefs.padStyle === 'cross'
+          ? 'grid grid-cols-3 gap-1'
+          : 'flex items-center gap-1.5'
+      }
+    >
+      {touchPrefs.padStyle === 'cross' ? <span /> : null}
+      {makeKeyButton(
+        KEY_UPARROW,
+        '▲',
+        `${padBtnCls} border-sky-400/50 bg-[#0c1424]/85 text-sky-200`
+      )}
+      {touchPrefs.padStyle === 'cross' ? <span /> : null}
+
+      {makeKeyButton(
+        KEY_LEFTARROW,
+        '◀',
+        `${padBtnCls} border-sky-400/50 bg-[#0c1424]/85 text-sky-200`
+      )}
+      {makeKeyButton(
+        KEY_DOWNARROW,
+        '▼',
+        `${padBtnCls} border-sky-400/50 bg-[#0c1424]/85 text-sky-200`
+      )}
+      {makeKeyButton(
+        KEY_RIGHTARROW,
+        '▶',
+        `${padBtnCls} border-sky-400/50 bg-[#0c1424]/85 text-sky-200`
+      )}
+    </div>
+  )
+
+  const actionPad = (
+    <div style={{ opacity: touchPrefs.opacity }} className="flex flex-col items-end gap-1.5">
+      <div className="flex gap-1.5">
+        {makeKeyButton(
+          KEY_ESCAPE,
+          'ESC',
+          `${actionBtnCls} border-white/25 bg-[#121926]/85 text-slate-200`
+        )}
+        {makeKeyButton(
+          KEY_ENTER,
+          'OK',
+          `${actionBtnCls} border-emerald-400/45 bg-emerald-950/80 text-emerald-200`
+        )}
+        {makeKeyButton(
+          0,
+          'ARM',
+          `${actionBtnCls} border-amber-400/45 bg-amber-950/80 text-amber-200`,
+          cycleWeapon
+        )}
+      </div>
+      <div className="flex gap-1.5">
+        {makeKeyButton(
+          KEY_RSHIFT,
+          'RUN',
+          `${actionBtnCls} border-sky-400/45 bg-sky-950/80 text-sky-200`
+        )}
+        {makeKeyButton(
+          KEY_SPACE,
+          locale === 'en' ? 'USE' : 'ABRIR',
+          `${actionBtnCls} border-emerald-400/50 bg-emerald-900/80 text-white`
+        )}
+        {makeKeyButton(
+          KEY_RCTRL,
+          locale === 'en' ? 'FIRE' : 'FUEGO',
+          `${actionBtnCls} border-red-400/70 bg-red-600/85 text-white`
+        )}
+      </div>
+    </div>
+  )
+
   return (
     <div className="flex h-full w-full flex-col overflow-hidden bg-black">
       {/* Window Header */}
-      <div className="flex items-center justify-between border-b border-red-500/35 bg-[#190909] px-3 py-1.5 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-1.5 border-b border-red-500/35 bg-[#190909] px-3 py-1.5 text-xs">
         <div className="flex items-center gap-2 font-mono text-red-200">
           <span>🔥 DOOM (1993)</span>
           <span className="hidden rounded border border-red-400/25 bg-red-500/10 px-1.5 py-0.5 text-[10px] text-amber-200 sm:inline">
             {wadLabel}
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => updateTouchPrefs({ enabled: !touchPrefs.enabled })}
+            className={`rounded border px-2 py-0.5 font-mono text-[10px] transition-colors ${
+              touchPrefs.enabled
+                ? 'border-sky-400/50 bg-sky-500/20 text-sky-200'
+                : 'border-white/15 bg-white/5 text-slate-300 hover:bg-white/10'
+            }`}
+          >
+            🎮 {locale === 'en' ? 'Touch Pad' : 'Controles Táctiles'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setCustomOpen((v) => !v)}
+            className="rounded border border-white/15 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-slate-200 hover:bg-white/10"
+          >
+            ⚙ {locale === 'en' ? 'Customize' : 'Personalizar'}
+          </button>
           <input
             ref={fileInputRef}
             type="file"
@@ -489,7 +690,7 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
             onClick={() => fileInputRef.current?.click()}
             className="rounded border border-amber-400/35 bg-amber-500/15 px-2 py-0.5 font-mono text-[10px] text-amber-200 hover:bg-amber-500/25"
           >
-            {locale === 'en' ? 'Load DOOM.WAD' : 'Cargar DOOM.WAD'}
+            {locale === 'en' ? 'Load WAD' : 'Cargar DOOM.WAD'}
           </button>
           {hasCustomWad ? (
             <button
@@ -521,23 +722,134 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
             if (!started && ready) startGame()
             else if (started) {
               canvasRef.current?.focus()
-              try {
-                const pl = canvasRef.current?.requestPointerLock?.() as unknown as Promise<void> | undefined
-                if (pl && typeof pl.catch === 'function') pl.catch(() => {})
-              } catch {
-                // Ignore
+              if (!touchPrefs.enabled && !window.matchMedia('(pointer: coarse)').matches) {
+                try {
+                  const pl = canvasRef.current?.requestPointerLock?.() as unknown as Promise<void> | undefined
+                  if (pl && typeof pl.catch === 'function') pl.catch(() => {})
+                } catch {
+                  // Ignore
+                }
               }
             }
           }}
           className="h-full max-h-full w-auto max-w-full cursor-pointer object-contain outline-none"
         />
 
+        {/* Customizable Touchscreen Controls Overlay */}
+        {started && touchPrefs.enabled ? (
+          <div className="pointer-events-none absolute inset-x-3 bottom-3 z-20 flex items-end justify-between gap-2">
+            <div className="pointer-events-auto">
+              {touchPrefs.swapped ? actionPad : movementPad}
+            </div>
+            <div className="pointer-events-auto">
+              {touchPrefs.swapped ? movementPad : actionPad}
+            </div>
+          </div>
+        ) : null}
+
+        {/* Touch Customization Popover */}
+        {customOpen ? (
+          <div className="absolute right-3 top-3 z-40 w-64 space-y-2.5 rounded-xl border border-white/15 bg-[#0c1320]/95 p-3 font-mono text-[11px] text-slate-200 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
+              <span className="font-bold text-sky-300">
+                {locale === 'en' ? 'Touch Controls Config' : 'Personalizar Táctil'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCustomOpen(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                ×
+              </button>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>{locale === 'en' ? 'Show HUD' : 'Mostrar HUD'}</span>
+              <button
+                type="button"
+                onClick={() => updateTouchPrefs({ enabled: !touchPrefs.enabled })}
+                className={`rounded px-2 py-0.5 ${
+                  touchPrefs.enabled ? 'bg-sky-500 text-slate-950 font-bold' : 'bg-white/10'
+                }`}
+              >
+                {touchPrefs.enabled ? 'ON' : 'OFF'}
+              </button>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>{locale === 'en' ? 'Size' : 'Tamaño'}</span>
+              <div className="flex gap-1">
+                {(['sm', 'md', 'lg'] as const).map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => updateTouchPrefs({ size: sz })}
+                    className={`rounded px-2 py-0.5 uppercase ${
+                      touchPrefs.size === sz ? 'bg-sky-500 text-slate-950 font-bold' : 'bg-white/10'
+                    }`}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>{locale === 'en' ? 'Pad Style' : 'Cruceta'}</span>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => updateTouchPrefs({ padStyle: 'cross' })}
+                  className={`rounded px-2 py-0.5 ${
+                    touchPrefs.padStyle === 'cross' ? 'bg-sky-500 text-slate-950 font-bold' : 'bg-white/10'
+                  }`}
+                >
+                  D-Pad
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateTouchPrefs({ padStyle: 'split' })}
+                  className={`rounded px-2 py-0.5 ${
+                    touchPrefs.padStyle === 'split' ? 'bg-sky-500 text-slate-950 font-bold' : 'bg-white/10'
+                  }`}
+                >
+                  {locale === 'en' ? 'Row' : 'Fila'}
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>{locale === 'en' ? 'Swap Hands' : 'Invertir Lados'}</span>
+              <button
+                type="button"
+                onClick={() => updateTouchPrefs({ swapped: !touchPrefs.swapped })}
+                className={`rounded px-2 py-0.5 ${
+                  touchPrefs.swapped ? 'bg-sky-500 text-slate-950 font-bold' : 'bg-white/10'
+                }`}
+              >
+                {touchPrefs.swapped ? 'L↔R' : 'Std'}
+              </button>
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <span>{locale === 'en' ? 'Opacity' : 'Opacidad'}</span>
+                <span>{Math.round(touchPrefs.opacity * 100)}%</span>
+              </div>
+              <input
+                type="range"
+                min={0.3}
+                max={1}
+                step={0.05}
+                value={touchPrefs.opacity}
+                onChange={(e) => updateTouchPrefs({ opacity: Number(e.target.value) })}
+                className="mt-1 w-full accent-sky-400"
+              />
+            </div>
+          </div>
+        ) : null}
+
         {!started && !errorMsg ? (
           <button
             type="button"
             disabled={!ready}
             onClick={startGame}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/75 p-6 text-center backdrop-blur-[2px] disabled:cursor-wait"
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black/75 p-6 text-center backdrop-blur-[2px] disabled:cursor-wait"
           >
             <span className="font-mono text-xs uppercase tracking-[0.25em] text-red-400">
               id Software · WASM Engine
@@ -546,7 +858,7 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
               {ready
                 ? locale === 'en'
                   ? 'Click to launch DOOM (1993)'
-                  : 'Haz clic para jugar DOOM (1993)'
+                  : 'Toca o haz clic para jugar DOOM (1993)'
                 : locale === 'en'
                   ? 'Initializing WebAssembly...'
                   : 'Inicializando WebAssembly...'}
@@ -554,14 +866,14 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
             <span className="font-mono text-xs text-amber-200/80">{statusText}</span>
             <span className="mt-2 rounded border border-white/15 bg-white/5 px-3 py-1 font-mono text-[11px] text-slate-300">
               {locale === 'en'
-                ? 'Arrows: Move · Ctrl: Fire · Space: Doors · Esc: Menu'
-                : 'Flechas: Mover · Ctrl: Disparar · Espacio: Puertas · Esc: Menú'}
+                ? 'Desktop: Arrows + Ctrl + Space · Mobile: Customizable Touch Pad'
+                : 'PC: Flechas + Ctrl + Espacio · Móvil: Controles Táctiles personalizables'}
             </span>
           </button>
         ) : null}
 
         {errorMsg ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/90 p-6 text-center">
+          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-black/90 p-6 text-center">
             <p className="font-display text-lg font-semibold text-red-400">DOOM Error</p>
             <pre className="max-w-md whitespace-pre-wrap font-mono text-xs text-slate-300">
               {errorMsg}
@@ -579,7 +891,7 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
 
       {/* Controls Status Bar */}
       <div className="flex items-center justify-between border-t border-white/10 bg-[#0d0d10] px-3 py-1 font-mono text-[10px] text-slate-400">
-        <span>Flechas · Ctrl (Disparar) · Espacio (Abrir) · Shift (Correr) · Esc (Menú)</span>
+        <span>Flechas · Ctrl (Disparar) · Espacio (Abrir) · Esc (Menú) · Controles Táctiles</span>
         <span>WebAssembly · In-Browser</span>
       </div>
     </div>

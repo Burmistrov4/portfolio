@@ -19,7 +19,7 @@ export function ContactSection({ profile }: ContactSectionProps) {
     locale === 'en' ? '/cv/CV_Lorenzo_Roca_EN.pdf' : '/cv/CV_Lorenzo_Roca_ES.pdf'
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#111721] to-[#0D1420] p-8 sm:p-10">
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#111721] to-[#0D1420] p-6 sm:p-10">
       <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
         {t.contact.heading}
       </h2>
@@ -30,7 +30,7 @@ export function ContactSection({ profile }: ContactSectionProps) {
       <div className="mt-8 flex flex-wrap gap-3">
         <a
           href={`mailto:${email}?subject=Oportunidad%20laboral`}
-          className="rounded-lg bg-sky-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition-colors hover:bg-sky-400"
+          className="max-w-full break-all rounded-lg bg-sky-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition-colors hover:bg-sky-400 sm:break-normal"
         >
           {email}
         </a>

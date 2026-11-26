@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePortfolio } from '@/components/site/portfolio-context'
 import { DoomPlayer } from '@/components/site/doom-player'
+import { ModeSwitch } from '@/components/site/mode-switch'
 import { curateCertificate, matchDetail, shortSummary, techOf } from '@/lib/project-details'
 import { CONTACT, type Certificate, type Profile, type Project } from '@/lib/portfolio-types'
 
@@ -300,13 +301,40 @@ export function LaptopOS({
               GitHub
             </span>
           </a>
+
+          <a
+            href={linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex flex-col items-center gap-1.5 rounded-lg p-2 text-center transition-colors hover:bg-white/10"
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-sky-400/40 bg-sky-700/35 text-lg font-mono font-bold text-sky-200 shadow-md">
+              in
+            </div>
+            <span className="text-[11px] font-medium leading-tight text-slate-200 drop-shadow">
+              LinkedIn
+            </span>
+          </a>
         </div>
 
         {/* Desktop Wallpaper Watermark */}
-        <div className="pointer-events-none absolute right-6 bottom-5 text-right font-mono text-xs text-sky-400/30">
+        <button
+          type="button"
+          onClick={() => {
+            const now = Date.now()
+            const prev = clockTapsRef.current
+            const count = now - prev.last < 1800 ? prev.count + 1 : 1
+            clockTapsRef.current = { count, last: now }
+            if (count >= 3) {
+              clockTapsRef.current = { count: 0, last: 0 }
+              launchDoom()
+            }
+          }}
+          className="absolute right-6 bottom-5 text-right font-mono text-xs text-sky-400/35 transition-colors hover:text-sky-400/60"
+        >
           <p className="font-bold tracking-widest">LORENZO OS // SYS-WORKBENCH</p>
           <p>THREE.JS + CSS3D · INTERACTIVE WORKSPACE</p>
-        </div>
+        </button>
 
         {/* Portfolio Browser Window */}
         {browserOpen && !browserMinimized ? (
@@ -401,7 +429,13 @@ export function LaptopOS({
                 onSubmit={(e) => {
                   e.preventDefault()
                   const cmd = addressDraft.trim().toLowerCase()
-                  if (cmd === 'doom' || cmd === 'about:doom' || cmd === 'iddqd' || cmd === 'idkfa') {
+                  if (
+                    cmd === 'doom' ||
+                    cmd.endsWith('/doom') ||
+                    cmd.includes('about:doom') ||
+                    cmd.includes('iddqd') ||
+                    cmd.includes('idkfa')
+                  ) {
                     launchDoom()
                   }
                   setAddressEditing(false)
@@ -413,18 +447,38 @@ export function LaptopOS({
                 <input
                   type="text"
                   aria-label="URL"
+                  placeholder="lorenzoroca.vercel.app"
                   value={addressEditing ? addressDraft : urlBar}
-                  onFocus={() => {
+                  onFocus={(e) => {
                     setAddressEditing(true)
-                    setAddressDraft(urlBar)
+                    setAddressDraft('')
+                    e.currentTarget.select()
                   }}
                   onBlur={() => {
                     setAddressEditing(false)
                     setAddressDraft('')
                   }}
-                  onChange={(e) => setAddressDraft(e.target.value)}
-                  className="w-full bg-transparent text-slate-300 outline-none"
+                  onChange={(e) => {
+                    const val = e.target.value
+                    setAddressDraft(val)
+                    const low = val.trim().toLowerCase()
+                    if (low === 'iddqd' || low === 'idkfa' || low === 'about:doom') {
+                      setAddressEditing(false)
+                      setAddressDraft('')
+                      launchDoom()
+                    }
+                  }}
+                  className="w-full bg-transparent text-slate-300 outline-none placeholder:text-slate-500"
                 />
+                {addressEditing ? (
+                  <button
+                    type="submit"
+                    onMouseDown={(e) => e.preventDefault()}
+                    className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-sky-300 hover:bg-sky-500/20"
+                  >
+                    ↵
+                  </button>
+                ) : null}
               </form>
               <button
                 type="button"
@@ -993,9 +1047,22 @@ export function LaptopOS({
         {/* Start Menu Popup */}
         {startMenuOpen ? (
           <div className="absolute bottom-2 left-2 z-40 w-64 rounded-xl border border-white/15 bg-[#0c1320]/95 p-3 shadow-2xl backdrop-blur-xl">
-            <p className="mb-2 px-2 font-mono text-[10px] uppercase tracking-wider text-sky-400">
+            <button
+              type="button"
+              onClick={() => {
+                const now = Date.now()
+                const prev = clockTapsRef.current
+                const count = now - prev.last < 1800 ? prev.count + 1 : 1
+                clockTapsRef.current = { count, last: now }
+                if (count >= 3) {
+                  clockTapsRef.current = { count: 0, last: 0 }
+                  launchDoom()
+                }
+              }}
+              className="mb-2 w-full px-2 text-left font-mono text-[10px] uppercase tracking-wider text-sky-400"
+            >
               Lorenzo OS · Aplicaciones
-            </p>
+            </button>
             <div className="space-y-1 text-xs">
               <button
                 type="button"
@@ -1004,6 +1071,22 @@ export function LaptopOS({
               >
                 <span>🌐</span> Portfolio Browser
               </button>
+              <a
+                href={linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left hover:bg-white/10"
+              >
+                <span className="font-mono font-bold text-sky-300">in</span> LinkedIn
+              </a>
+              <a
+                href={github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left hover:bg-white/10"
+              >
+                <span className="font-mono font-bold text-slate-300">GH</span> GitHub
+              </a>
               <a
                 href={cvUrl}
                 target="_blank"
@@ -1090,31 +1173,25 @@ export function LaptopOS({
           >
             {locale.toUpperCase()}
           </button>
-          <div className="inline-flex items-center rounded border border-white/15 bg-[#0d1420] p-0.5">
-            <button
-              type="button"
-              onClick={onSwitch2D}
-              className="rounded px-1.5 py-0.5 text-slate-400 hover:text-white"
-            >
-              2D
-            </button>
-            <span className="rounded bg-sky-500 px-1.5 py-0.5 font-semibold text-slate-950">
-              3D
-            </span>
-          </div>
+          <ModeSwitch
+            compact
+            onSelectMode={(mode) => {
+              if (mode === '2d') onSwitch2D()
+            }}
+          />
           <button
             type="button"
             onClick={() => {
               const now = Date.now()
               const prev = clockTapsRef.current
-              const count = now - prev.last < 1500 ? prev.count + 1 : 1
+              const count = now - prev.last < 1800 ? prev.count + 1 : 1
               clockTapsRef.current = { count, last: now }
-              if (count >= 5) {
+              if (count >= 3) {
                 clockTapsRef.current = { count: 0, last: 0 }
                 launchDoom()
               }
             }}
-            className="px-1 text-slate-400 hover:text-slate-200"
+            className="rounded px-2 py-1 text-slate-400 hover:bg-white/5 hover:text-slate-200"
           >
             {clockText}
           </button>

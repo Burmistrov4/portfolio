@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { SiteNav } from '@/components/site/site-nav'
 import { Hero } from '@/components/site/hero'
 import { ProjectsExplorer } from '@/components/site/projects-explorer'
@@ -9,6 +9,7 @@ import { CertificatesGrid } from '@/components/site/certificates-grid'
 import { ContactSection } from '@/components/site/contact-section'
 import { SiteFooter } from '@/components/site/site-footer'
 import { LaptopOS } from '@/components/site/laptop-os'
+import { ModeSwitch } from '@/components/site/mode-switch'
 import { usePortfolio } from '@/components/site/portfolio-context'
 import type { Certificate, Profile, Project } from '@/lib/portfolio-types'
 
@@ -111,6 +112,38 @@ export function HomeView({ profile, projects, certificates }: HomeViewProps) {
   const handleSwitch2D = useCallback(() => setViewMode('2d'), [setViewMode])
   const handleSecretTrigger = useCallback(() => setSecretSignal((n) => n + 1), [])
 
+  useEffect(() => {
+    if (viewMode !== '2d') return
+    let buf = ''
+    const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight']
+    let kIdx = 0
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return
+      if (e.key === konami[kIdx]) {
+        kIdx++
+        if (kIdx === konami.length) {
+          kIdx = 0
+          setViewMode('3d')
+          setSecretSignal((n) => n + 1)
+          return
+        }
+      } else {
+        kIdx = e.key === konami[0] ? 1 : 0
+      }
+      if (e.key.length === 1) {
+        buf = (buf + e.key.toLowerCase()).slice(-10)
+        if (buf.endsWith('iddqd') || buf.endsWith('idkfa')) {
+          buf = ''
+          setViewMode('3d')
+          setSecretSignal((n) => n + 1)
+        }
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [viewMode, setViewMode])
+
   const cvUrl = locale === 'en' ? '/cv/CV_Lorenzo_Roca_EN.pdf' : '/cv/CV_Lorenzo_Roca_ES.pdf'
 
   if (viewMode === '3d') {
@@ -136,25 +169,7 @@ export function HomeView({ profile, projects, certificates }: HomeViewProps) {
             >
               {t.hero.sceneControls.resetCamera}
             </button>
-            <div
-              role="group"
-              aria-label={t.nav.toggle3dTitle}
-              className="inline-flex items-center rounded border border-white/15 bg-[#0d1420] p-0.5 font-mono text-[11px]"
-            >
-              <button
-                type="button"
-                onClick={handleSwitch2D}
-                className="rounded px-2 py-0.5 font-semibold text-slate-400 transition-colors hover:text-white"
-              >
-                {t.nav.mode2d}
-              </button>
-              <button
-                type="button"
-                className="rounded bg-sky-500 px-2 py-0.5 font-semibold text-slate-950"
-              >
-                {t.nav.mode3d}
-              </button>
-            </div>
+            <ModeSwitch compact />
             <button
               type="button"
               onClick={() => setLocale(locale === 'es' ? 'en' : 'es')}

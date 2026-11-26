@@ -40,7 +40,7 @@ export function Hero({ profile, projectCount, certificateCount }: HeroProps) {
         }}
       />
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 md:grid-cols-[1.4fr_1fr] md:py-20">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-8 px-5 py-10 sm:gap-10 sm:py-16 md:grid-cols-[1.4fr_1fr] md:py-20">
         <div>
           <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />

@@ -54,11 +54,11 @@ export function ProjectsExplorer({ projects }: ProjectsExplorerProps) {
   return (
     <div>
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex max-w-full flex-nowrap gap-2 overflow-x-auto pb-1.5 sm:flex-wrap sm:overflow-visible sm:pb-0">
           <button
             type="button"
             onClick={() => setSelectedTech(null)}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
               selectedTech === null
                 ? 'bg-sky-500 text-slate-950'
                 : 'border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
@@ -71,7 +71,7 @@ export function ProjectsExplorer({ projects }: ProjectsExplorerProps) {
               key={tech}
               type="button"
               onClick={() => setSelectedTech(selectedTech === tech ? null : tech)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                 selectedTech === tech
                   ? 'bg-sky-500 text-slate-950'
                   : 'border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
