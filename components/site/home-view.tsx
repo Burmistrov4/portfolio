@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { SiteNav } from '@/components/site/site-nav'
 import { Hero } from '@/components/site/hero'
 import { ProjectsExplorer } from '@/components/site/projects-explorer'
@@ -106,6 +106,9 @@ export function HomeView({ profile, projects, certificates }: HomeViewProps) {
   const [lidClosed, setLidClosed] = useState(false)
   const [resetSignal, setResetSignal] = useState(0)
 
+  const handleToggleLid = useCallback(() => setLidClosed((prev) => !prev), [])
+  const handleSwitch2D = useCallback(() => setViewMode('2d'), [setViewMode])
+
   const cvUrl = locale === 'en' ? '/cv/CV_Lorenzo_Roca_EN.pdf' : '/cv/CV_Lorenzo_Roca_ES.pdf'
 
   if (viewMode === '3d') {
@@ -158,9 +161,9 @@ export function HomeView({ profile, projects, certificates }: HomeViewProps) {
 
         <Workbench3D
           lidClosed={lidClosed}
-          onToggleLid={() => setLidClosed((prev) => !prev)}
+          onToggleLid={handleToggleLid}
           resetSignal={resetSignal}
-          onSwitch2D={() => setViewMode('2d')}
+          onSwitch2D={handleSwitch2D}
           labels={{
             dragHint: t.hero.sceneControls.dragHint,
             openLid: locale === 'en' ? 'Open Laptop' : 'Abrir Laptop',

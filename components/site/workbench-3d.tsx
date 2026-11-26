@@ -50,6 +50,7 @@ export function Workbench3D({
   const [hoveredHint, setHoveredHint] = useState<string | null>(null)
   const lidClosedRef = useRef(lidClosed)
   const onToggleLidRef = useRef(onToggleLid)
+  const onSwitch2DRef = useRef(onSwitch2D)
   const resetRef = useRef(resetSignal)
 
   useEffect(() => {
@@ -59,6 +60,10 @@ export function Workbench3D({
   useEffect(() => {
     onToggleLidRef.current = onToggleLid
   }, [onToggleLid])
+
+  useEffect(() => {
+    onSwitch2DRef.current = onSwitch2D
+  }, [onSwitch2D])
 
   useEffect(() => {
     resetRef.current = resetSignal
@@ -78,7 +83,7 @@ export function Workbench3D({
         powerPreference: 'high-performance',
       })
     } catch {
-      onSwitch2D()
+      onSwitch2DRef.current()
       return
     }
 
@@ -271,7 +276,7 @@ export function Workbench3D({
       new THREE.PlaneGeometry(0.68, 0.34),
       new THREE.MeshBasicMaterial({ map: logoTex })
     )
-    backLogo.rotation.y = Math.PI
+    backLogo.rotation.set(0, Math.PI, Math.PI)
     backLogo.position.set(0, 0.72, -0.019)
     lidPivot.add(backLogo)
 
@@ -667,7 +672,7 @@ export function Workbench3D({
         cssContainer.removeChild(cssRenderer.domElement)
       }
     }
-  }, [onSwitch2D])
+  }, [])
 
   return (
     <div className="fixed inset-0 h-screen w-screen overflow-hidden bg-[#050911]">
