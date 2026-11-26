@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 import { usePortfolio } from '@/components/site/portfolio-context'
 
 interface SiteNavProps {
@@ -12,6 +13,15 @@ interface SiteNavProps {
  */
 export function SiteNav({ cvUrl: _cvUrl }: SiteNavProps) {
   const { locale, setLocale, viewMode, setViewMode, t } = usePortfolio()
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const switchMode = (target: '2d' | '3d') => {
+    setViewMode(target)
+    if (pathname !== '/') {
+      router.push('/')
+    }
+  }
 
   const links = [
     { href: '/#proyectos', label: t.nav.projects },
@@ -46,15 +56,36 @@ export function SiteNav({ cvUrl: _cvUrl }: SiteNavProps) {
             </a>
           ))}
 
-          {/* 3D / 2D Toggle */}
-          <button
-            type="button"
+          {/* Segmented 2D / 3D Switch */}
+          <div
+            role="group"
+            aria-label={t.nav.toggle3dTitle}
             title={t.nav.toggle3dTitle}
-            onClick={() => setViewMode(viewMode === '3d' ? '2d' : '3d')}
-            className="rounded-md border border-sky-400/35 bg-sky-500/10 px-2.5 py-1.5 font-mono text-xs font-semibold text-sky-300 transition-colors hover:bg-sky-500/20"
+            className="inline-flex items-center rounded-md border border-white/15 bg-[#0d1420] p-0.5 font-mono text-xs"
           >
-            {viewMode === '3d' ? t.nav.mode3d : t.nav.mode2d}
-          </button>
+            <button
+              type="button"
+              onClick={() => switchMode('2d')}
+              className={`rounded px-2 py-1 font-semibold transition-colors ${
+                viewMode === '2d'
+                  ? 'bg-sky-500 text-slate-950'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {t.nav.mode2d}
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode('3d')}
+              className={`rounded px-2 py-1 font-semibold transition-colors ${
+                viewMode === '3d'
+                  ? 'bg-sky-500 text-slate-950'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {t.nav.mode3d}
+            </button>
+          </div>
 
           {/* ES / EN Toggle */}
           <button

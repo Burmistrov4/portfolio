@@ -105,9 +105,11 @@ export function HomeView({ profile, projects, certificates }: HomeViewProps) {
   const { locale, setLocale, viewMode, setViewMode, t } = usePortfolio()
   const [lidClosed, setLidClosed] = useState(false)
   const [resetSignal, setResetSignal] = useState(0)
+  const [secretSignal, setSecretSignal] = useState(0)
 
   const handleToggleLid = useCallback(() => setLidClosed((prev) => !prev), [])
   const handleSwitch2D = useCallback(() => setViewMode('2d'), [setViewMode])
+  const handleSecretTrigger = useCallback(() => setSecretSignal((n) => n + 1), [])
 
   const cvUrl = locale === 'en' ? '/cv/CV_Lorenzo_Roca_EN.pdf' : '/cv/CV_Lorenzo_Roca_ES.pdf'
 
@@ -134,13 +136,25 @@ export function HomeView({ profile, projects, certificates }: HomeViewProps) {
             >
               {t.hero.sceneControls.resetCamera}
             </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('2d')}
-              className="rounded border border-sky-400/35 bg-sky-500/15 px-2.5 py-1 font-mono text-[11px] font-semibold text-sky-300 transition-colors hover:bg-sky-500/25"
+            <div
+              role="group"
+              aria-label={t.nav.toggle3dTitle}
+              className="inline-flex items-center rounded border border-white/15 bg-[#0d1420] p-0.5 font-mono text-[11px]"
             >
-              {t.hero.sceneControls.switch2d}
-            </button>
+              <button
+                type="button"
+                onClick={handleSwitch2D}
+                className="rounded px-2 py-0.5 font-semibold text-slate-400 transition-colors hover:text-white"
+              >
+                {t.nav.mode2d}
+              </button>
+              <button
+                type="button"
+                className="rounded bg-sky-500 px-2 py-0.5 font-semibold text-slate-950"
+              >
+                {t.nav.mode3d}
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => setLocale(locale === 'es' ? 'en' : 'es')}
@@ -164,6 +178,7 @@ export function HomeView({ profile, projects, certificates }: HomeViewProps) {
           onToggleLid={handleToggleLid}
           resetSignal={resetSignal}
           onSwitch2D={handleSwitch2D}
+          onSecretTrigger={handleSecretTrigger}
           labels={{
             dragHint: t.hero.sceneControls.dragHint,
             openLid: locale === 'en' ? 'Open Laptop' : 'Abrir Laptop',
@@ -176,8 +191,9 @@ export function HomeView({ profile, projects, certificates }: HomeViewProps) {
             profile={profile}
             projects={projects}
             certificates={certificates}
-            onSwitch2D={() => setViewMode('2d')}
-            onToggleLid={() => setLidClosed((prev) => !prev)}
+            secretSignal={secretSignal}
+            onSwitch2D={handleSwitch2D}
+            onToggleLid={handleToggleLid}
             onResetCamera={() => setResetSignal((n) => n + 1)}
           />
         </Workbench3D>

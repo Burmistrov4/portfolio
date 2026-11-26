@@ -20,7 +20,7 @@ const PortfolioContext = createContext<PortfolioContextValue | null>(null)
  */
 export function PortfolioProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('es')
-  const [viewMode, setViewModeState] = useState<ViewMode>('3d')
+  const [viewMode, setViewModeState] = useState<ViewMode>('2d')
 
   useEffect(() => {
     const savedLocale = window.localStorage.getItem('portfolio_locale')

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePortfolio } from '@/components/site/portfolio-context'
 import { DoomPlayer } from '@/components/site/doom-player'
 import { curateCertificate, matchDetail, shortSummary, techOf } from '@/lib/project-details'
@@ -19,6 +19,7 @@ interface LaptopOSProps {
   profile: Profile | null
   projects: Project[]
   certificates: Certificate[]
+  secretSignal?: number
   onSwitch2D: () => void
   onToggleLid: () => void
   onResetCamera: () => void
@@ -73,6 +74,7 @@ export function LaptopOS({
   profile,
   projects,
   certificates,
+  secretSignal = 0,
   onSwitch2D,
   onToggleLid,
   onResetCamera,
@@ -80,10 +82,14 @@ export function LaptopOS({
   const { locale, setLocale, t } = usePortfolio()
   const [browserOpen, setBrowserOpen] = useState(true)
   const [browserMinimized, setBrowserMinimized] = useState(false)
+  const [doomUnlocked, setDoomUnlocked] = useState(false)
   const [doomBooted, setDoomBooted] = useState(false)
   const [doomOpen, setDoomOpen] = useState(false)
   const [activeApp, setActiveApp] = useState<'browser' | 'doom'>('browser')
   const [startMenuOpen, setStartMenuOpen] = useState(false)
+  const [addressDraft, setAddressDraft] = useState('')
+  const [addressEditing, setAddressEditing] = useState(false)
+  const clockTapsRef = useRef({ count: 0, last: 0 })
 
   const [activeTab, setActiveTab] = useState<BrowserTabId>('inicio')
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
@@ -167,11 +173,65 @@ export function LaptopOS({
   }
 
   const launchDoom = () => {
+    setDoomUnlocked(true)
     setDoomBooted(true)
     setDoomOpen(true)
     setActiveApp('doom')
     setStartMenuOpen(false)
   }
+
+  useEffect(() => {
+    if (secretSignal > 0) {
+      launchDoom()
+    }
+  }, [secretSignal])
+
+  useEffect(() => {
+    let textBuffer = ''
+    const konami = [
+      'ArrowUp',
+      'ArrowUp',
+      'ArrowDown',
+      'ArrowDown',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowLeft',
+      'ArrowRight',
+    ]
+    let konamiIdx = 0
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return
+      if (doomOpen) return
+
+      if (e.key === konami[konamiIdx]) {
+        konamiIdx++
+        if (konamiIdx === konami.length) {
+          konamiIdx = 0
+          launchDoom()
+          return
+        }
+      } else {
+        konamiIdx = e.key === konami[0] ? 1 : 0
+      }
+
+      if (e.key.length === 1) {
+        textBuffer = (textBuffer + e.key.toLowerCase()).slice(-10)
+        if (
+          textBuffer.endsWith('iddqd') ||
+          textBuffer.endsWith('idkfa') ||
+          textBuffer.endsWith('doom')
+        ) {
+          textBuffer = ''
+          launchDoom()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [doomOpen])
 
   const urlBar =
     activeTab === 'proyecto-detalle' && selectedProject
@@ -210,19 +270,6 @@ export function LaptopOS({
             </div>
             <span className="text-[11px] font-medium leading-tight text-slate-200 drop-shadow">
               Portfolio
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={launchDoom}
-            className="group flex flex-col items-center gap-1.5 rounded-lg p-2 text-center transition-colors hover:bg-red-500/15"
-          >
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-red-500/50 bg-gradient-to-br from-red-700/60 to-orange-700/60 text-xl shadow-md">
-              🔥
-            </div>
-            <span className="text-[11px] font-semibold leading-tight text-amber-200 drop-shadow">
-              DOOM (1993)
             </span>
           </button>
 
@@ -336,18 +383,10 @@ export function LaptopOS({
                     </button>
                   </div>
                 ) : null}
-                <button
-                  type="button"
-                  onClick={launchDoom}
-                  title="Abrir DOOM (1993)"
-                  className="mb-0.5 ml-1 shrink-0 rounded-md border border-red-500/35 bg-red-500/15 px-2 py-1 font-mono text-[11px] font-semibold text-red-200 hover:bg-red-500/25"
-                >
-                  + DOOM
-                </button>
               </div>
             </div>
 
-            {/* Browser Address Bar */}
+            {/* Browser Address Bar (supports secret console commands like iddqd / doom) */}
             <div className="flex items-center gap-2 border-b border-white/10 bg-[#0A0E14] px-3 py-2 text-xs">
               <button
                 type="button"
@@ -358,10 +397,35 @@ export function LaptopOS({
               >
                 ←
               </button>
-              <div className="flex flex-1 items-center gap-2 rounded-md border border-white/10 bg-[#111721] px-3 py-1 font-mono text-[11px] text-slate-300">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                <span className="truncate">{urlBar}</span>
-              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const cmd = addressDraft.trim().toLowerCase()
+                  if (cmd === 'doom' || cmd === 'about:doom' || cmd === 'iddqd' || cmd === 'idkfa') {
+                    launchDoom()
+                  }
+                  setAddressEditing(false)
+                  setAddressDraft('')
+                }}
+                className="flex flex-1 items-center gap-2 rounded-md border border-white/10 bg-[#111721] px-3 py-1 font-mono text-[11px] text-slate-300"
+              >
+                <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+                <input
+                  type="text"
+                  aria-label="URL"
+                  value={addressEditing ? addressDraft : urlBar}
+                  onFocus={() => {
+                    setAddressEditing(true)
+                    setAddressDraft(urlBar)
+                  }}
+                  onBlur={() => {
+                    setAddressEditing(false)
+                    setAddressDraft('')
+                  }}
+                  onChange={(e) => setAddressDraft(e.target.value)}
+                  className="w-full bg-transparent text-slate-300 outline-none"
+                />
+              </form>
               <button
                 type="button"
                 onClick={() => setLocale(locale === 'es' ? 'en' : 'es')}
@@ -427,13 +491,6 @@ export function LaptopOS({
                         >
                           {t.hero.ctaCv}
                         </a>
-                        <button
-                          type="button"
-                          onClick={launchDoom}
-                          className="rounded-lg border border-red-500/40 bg-red-500/15 px-3.5 py-2 font-mono text-xs font-semibold text-red-200 hover:bg-red-500/25"
-                        >
-                          🔥 DOOM (1993)
-                        </button>
                       </div>
                     </div>
 
@@ -947,13 +1004,6 @@ export function LaptopOS({
               >
                 <span>🌐</span> Portfolio Browser
               </button>
-              <button
-                type="button"
-                onClick={launchDoom}
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-amber-200 hover:bg-red-500/20"
-              >
-                <span>🔥</span> DOOM (1993)
-              </button>
               <a
                 href={cvUrl}
                 target="_blank"
@@ -1017,20 +1067,19 @@ export function LaptopOS({
             <span>🌐</span> Portfolio
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              if (!doomOpen) launchDoom()
-              else setActiveApp('doom')
-            }}
-            className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] transition-colors ${
-              doomOpen && activeApp === 'doom'
-                ? 'border-red-400/50 bg-red-500/25 text-white'
-                : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
-            }`}
-          >
-            <span>🔥</span> DOOM (1993)
-          </button>
+          {doomUnlocked && doomOpen ? (
+            <button
+              type="button"
+              onClick={() => setActiveApp('doom')}
+              className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] transition-colors ${
+                activeApp === 'doom'
+                  ? 'border-red-400/50 bg-red-500/25 text-white'
+                  : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
+              }`}
+            >
+              <span>🔥</span> DOOM (1993)
+            </button>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-2 font-mono text-[11px] text-slate-300">
@@ -1041,14 +1090,34 @@ export function LaptopOS({
           >
             {locale.toUpperCase()}
           </button>
+          <div className="inline-flex items-center rounded border border-white/15 bg-[#0d1420] p-0.5">
+            <button
+              type="button"
+              onClick={onSwitch2D}
+              className="rounded px-1.5 py-0.5 text-slate-400 hover:text-white"
+            >
+              2D
+            </button>
+            <span className="rounded bg-sky-500 px-1.5 py-0.5 font-semibold text-slate-950">
+              3D
+            </span>
+          </div>
           <button
             type="button"
-            onClick={onSwitch2D}
-            className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-sky-300 hover:bg-sky-500/15"
+            onClick={() => {
+              const now = Date.now()
+              const prev = clockTapsRef.current
+              const count = now - prev.last < 1500 ? prev.count + 1 : 1
+              clockTapsRef.current = { count, last: now }
+              if (count >= 5) {
+                clockTapsRef.current = { count: 0, last: 0 }
+                launchDoom()
+              }
+            }}
+            className="px-1 text-slate-400 hover:text-slate-200"
           >
-            2D
+            {clockText}
           </button>
-          <span className="px-1 text-slate-400">{clockText}</span>
         </div>
       </footer>
     </div>

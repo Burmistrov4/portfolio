@@ -16,6 +16,7 @@ interface Workbench3DProps {
   onToggleLid: () => void
   resetSignal: number
   onSwitch2D: () => void
+  onSecretTrigger?: () => void
   labels: {
     dragHint: string
     openLid: string
@@ -41,6 +42,7 @@ export function Workbench3D({
   onToggleLid,
   resetSignal,
   onSwitch2D,
+  onSecretTrigger,
   labels,
 }: Workbench3DProps) {
   const webglMountRef = useRef<HTMLDivElement>(null)
@@ -51,6 +53,8 @@ export function Workbench3D({
   const lidClosedRef = useRef(lidClosed)
   const onToggleLidRef = useRef(onToggleLid)
   const onSwitch2DRef = useRef(onSwitch2D)
+  const onSecretTriggerRef = useRef(onSecretTrigger)
+  const adjustZoomRef = useRef<(delta: number) => void>(() => {})
   const resetRef = useRef(resetSignal)
 
   useEffect(() => {
@@ -64,6 +68,10 @@ export function Workbench3D({
   useEffect(() => {
     onSwitch2DRef.current = onSwitch2D
   }, [onSwitch2D])
+
+  useEffect(() => {
+    onSecretTriggerRef.current = onSecretTrigger
+  }, [onSecretTrigger])
 
   useEffect(() => {
     resetRef.current = resetSignal
@@ -298,12 +306,19 @@ export function Workbench3D({
     lidPivot.add(rightBezel)
 
     const webcamDot = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.01, 0.01, 0.01, 12),
+      new THREE.CylinderGeometry(0.012, 0.012, 0.01, 12),
       new THREE.MeshBasicMaterial({ color: 0x34d399 })
     )
     webcamDot.rotation.x = Math.PI / 2
-    webcamDot.position.set(0, 1.39, 0.032)
+    webcamDot.position.set(0, 1.39, 0.033)
     lidPivot.add(webcamDot)
+
+    const webcamHit = new THREE.Mesh(
+      new THREE.SphereGeometry(0.045, 8, 8),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+    )
+    webcamHit.position.set(0, 1.39, 0.034)
+    lidPivot.add(webcamHit)
 
     // Mount live React LaptopOS DOM into CSS3DObject flush inside bezel
     const cssObj = new CSS3DObject(screenEl)
@@ -333,30 +348,48 @@ export function Workbench3D({
     mouseWheel.position.set(0, 0.022, -0.07)
     mouseGroup.add(mouseWheel)
 
-    // 5b. Articulated Desk Lamp (left-back)
+    // 5b. Articulated Desk Lamp (left-back, recessed bulb strictly inside open-ended cone shade)
     const lampGroup = new THREE.Group()
     lampGroup.position.set(-1.92, 0, -0.78)
     deskGroup.add(lampGroup)
     const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.21, 0.04, 24), aluminumMat)
     lampBase.position.y = 0.02
     lampGroup.add(lampBase)
-    const lampArm1 = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.78, 12), aluminumMat)
-    lampArm1.position.set(-0.06, 0.38, -0.06)
-    lampArm1.rotation.z = -0.18
+    const lampArm1 = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.76, 12), aluminumMat)
+    lampArm1.position.set(-0.06, 0.37, -0.04)
+    lampArm1.rotation.z = 0.16
     lampGroup.add(lampArm1)
-    const lampArm2 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.62, 12), aluminumMat)
-    lampArm2.position.set(0.12, 0.88, 0.06)
-    lampArm2.rotation.z = 0.65
-    lampArm2.rotation.x = 0.2
+    const lampArm2 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.56, 12), aluminumMat)
+    lampArm2.position.set(0.08, 0.86, 0.04)
+    lampArm2.rotation.z = -0.85
+    lampArm2.rotation.x = 0.22
     lampGroup.add(lampArm2)
-    const lampShade = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.22, 20), darkChassMat)
-    lampShade.position.set(0.32, 1.02, 0.14)
-    lampShade.rotation.z = -0.45
-    lampGroup.add(lampShade)
+
+    const lampHead = new THREE.Group()
+    lampHead.position.set(0.28, 0.96, 0.11)
+    lampHead.rotation.set(0.14, 0, 0.58)
+    lampGroup.add(lampHead)
+
+    const lampShadeMat = new THREE.MeshStandardMaterial({
+      color: 0x0b1220,
+      roughness: 0.35,
+      metalness: 0.72,
+      side: THREE.DoubleSide,
+    })
+    const lampShade = new THREE.Mesh(new THREE.ConeGeometry(0.145, 0.22, 24, 1, true), lampShadeMat)
+    lampHead.add(lampShade)
+
+    const lampNeckCap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.036, 0.045, 0.035, 16),
+      darkChassMat
+    )
+    lampNeckCap.position.y = 0.1
+    lampHead.add(lampNeckCap)
+
     const lampBulbMat = new THREE.MeshBasicMaterial({ color: 0xfef3c7 })
-    const lampBulb = new THREE.Mesh(new THREE.SphereGeometry(0.075, 16, 16), lampBulbMat)
-    lampBulb.position.set(0.36, 0.94, 0.14)
-    lampGroup.add(lampBulb)
+    const lampBulb = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 16), lampBulbMat)
+    lampBulb.position.set(0, -0.045, 0)
+    lampHead.add(lampBulb)
 
     // 5c. Mini Server Cube (left desk prop)
     const serverGroup = new THREE.Group()
@@ -443,6 +476,12 @@ export function Workbench3D({
     let paletteIndex = 0
     let coreTurbo = false
     let mouseBounce = 0
+    let coreSecretHits = 0
+    let webcamSecretHits = 0
+
+    adjustZoomRef.current = (delta: number) => {
+      targetZoom = THREE.MathUtils.clamp(targetZoom + delta, -4.5, 2.2)
+    }
 
     const raycaster = new THREE.Raycaster()
     const pointer = new THREE.Vector2()
@@ -453,6 +492,7 @@ export function Workbench3D({
       pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1
       raycaster.setFromCamera(pointer, camera)
 
+      if (raycaster.intersectObject(webcamHit, true).length > 0) return 'webcam'
       if (raycaster.intersectObjects(lidInteractiveMeshes, true).length > 0) return 'lid'
       if (raycaster.intersectObject(lampGroup, true).length > 0) return 'lamp'
       if (raycaster.intersectObject(serverGroup, true).length > 0) return 'server'
@@ -461,8 +501,42 @@ export function Workbench3D({
       return null
     }
 
+    const triggerPropAction = (hit: string | null) => {
+      if (hit === 'webcam') {
+        webcamSecretHits++
+        if (webcamSecretHits >= 3) {
+          webcamSecretHits = 0
+          onSecretTriggerRef.current?.()
+        }
+      } else if (hit === 'lid') {
+        onToggleLidRef.current()
+      } else if (hit === 'lamp') {
+        lampOn = !lampOn
+        deskLampLight.intensity = lampOn ? 2.4 : 0.0
+        lampBulbMat.color.setHex(lampOn ? 0xfef3c7 : 0x334155)
+      } else if (hit === 'server') {
+        paletteIndex = (paletteIndex + 1) % ACCENT_PALETTES.length
+        const pal = ACCENT_PALETTES[paletteIndex]
+        accentGlowMat.color.setHex(pal.accent)
+        gridUniforms.uPrimaryColor.value.setHex(pal.primary)
+        gridUniforms.uAccentColor.value.setHex(pal.accent)
+        coreUniforms.uColorA.value.setHex(pal.primary)
+        coreUniforms.uColorB.value.setHex(pal.accent)
+        orbitRing.material.color.setHex(pal.accent)
+      } else if (hit === 'core') {
+        coreTurbo = !coreTurbo
+        coreSecretHits++
+        if (coreSecretHits >= 5) {
+          coreSecretHits = 0
+          onSecretTriggerRef.current?.()
+        }
+      } else if (hit === 'mouse') {
+        mouseBounce = 1.0
+      }
+    }
+
     const onPointerDown = (e: PointerEvent) => {
-      if (e.target !== renderer.domElement) return
+      if (e.pointerType === 'touch' || e.target !== renderer.domElement) return
       isDragging = true
       dragDistance = 0
       prevX = e.clientX
@@ -470,14 +544,15 @@ export function Workbench3D({
     }
 
     const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return
       if (isDragging) {
         const dx = e.clientX - prevX
         const dy = e.clientY - prevY
         dragDistance += Math.abs(dx) + Math.abs(dy)
         prevX = e.clientX
         prevY = e.clientY
-        targetYaw = THREE.MathUtils.clamp(targetYaw - dx * 0.0055, -1.15, 1.15)
-        targetPitch = THREE.MathUtils.clamp(targetPitch + dy * 0.004, -0.1, 0.72)
+        targetYaw = THREE.MathUtils.clamp(targetYaw - dx * 0.0055, -1.25, 1.25)
+        targetPitch = THREE.MathUtils.clamp(targetPitch + dy * 0.004, -0.1, 0.78)
         return
       }
       if (e.target !== renderer.domElement) {
@@ -488,7 +563,7 @@ export function Workbench3D({
         return
       }
       const hit = intersectProps(e.clientX, e.clientY)
-      lidHover = hit === 'lid'
+      lidHover = hit === 'lid' || hit === 'webcam'
       lidRimMat.emissiveIntensity = lidHover ? 0.95 : 0.15
       renderer.domElement.style.cursor =
         hit === 'lid' ? 'ns-resize' : hit ? 'pointer' : 'grab'
@@ -509,29 +584,69 @@ export function Workbench3D({
     }
 
     const onPointerUp = (e: PointerEvent) => {
-      if (!isDragging) return
+      if (e.pointerType === 'touch' || !isDragging) return
       isDragging = false
       if (dragDistance < 8 && e.target === renderer.domElement) {
-        const hit = intersectProps(e.clientX, e.clientY)
-        if (hit === 'lid') {
-          onToggleLidRef.current()
-        } else if (hit === 'lamp') {
-          lampOn = !lampOn
-          deskLampLight.intensity = lampOn ? 2.4 : 0.0
-          lampBulbMat.color.setHex(lampOn ? 0xfef3c7 : 0x334155)
-        } else if (hit === 'server') {
-          paletteIndex = (paletteIndex + 1) % ACCENT_PALETTES.length
-          const pal = ACCENT_PALETTES[paletteIndex]
-          accentGlowMat.color.setHex(pal.accent)
-          gridUniforms.uPrimaryColor.value.setHex(pal.primary)
-          gridUniforms.uAccentColor.value.setHex(pal.accent)
-          coreUniforms.uColorA.value.setHex(pal.primary)
-          coreUniforms.uColorB.value.setHex(pal.accent)
-          orbitRing.material.color.setHex(pal.accent)
-        } else if (hit === 'core') {
-          coreTurbo = !coreTurbo
-        } else if (hit === 'mouse') {
-          mouseBounce = 1.0
+        triggerPropAction(intersectProps(e.clientX, e.clientY))
+      }
+    }
+
+    // Native mobile multi-touch gestures: 1-finger orbit/tap + 2-finger pinch zoom (- / +)
+    let touchDragging = false
+    let touchDragDist = 0
+    let prevTouchX = 0
+    let prevTouchY = 0
+    let prevPinchDist: number | null = null
+
+    const pinchDistance = (t0: Touch, t1: Touch) =>
+      Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY)
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        touchDragging = false
+        prevPinchDist = pinchDistance(e.touches[0], e.touches[1])
+        e.preventDefault()
+        return
+      }
+      if (e.touches.length === 1 && e.target === renderer.domElement) {
+        touchDragging = true
+        touchDragDist = 0
+        prevTouchX = e.touches[0].clientX
+        prevTouchY = e.touches[0].clientY
+      }
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && prevPinchDist !== null) {
+        e.preventDefault()
+        const cur = pinchDistance(e.touches[0], e.touches[1])
+        const delta = (cur - prevPinchDist) * 0.018
+        prevPinchDist = cur
+        targetZoom = THREE.MathUtils.clamp(targetZoom + delta, -4.5, 2.2)
+        return
+      }
+      if (e.touches.length === 1 && touchDragging) {
+        e.preventDefault()
+        const t = e.touches[0]
+        const dx = t.clientX - prevTouchX
+        const dy = t.clientY - prevTouchY
+        touchDragDist += Math.abs(dx) + Math.abs(dy)
+        prevTouchX = t.clientX
+        prevTouchY = t.clientY
+        targetYaw = THREE.MathUtils.clamp(targetYaw - dx * 0.0075, -1.25, 1.25)
+        targetPitch = THREE.MathUtils.clamp(targetPitch + dy * 0.0055, -0.1, 0.78)
+      }
+    }
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        prevPinchDist = null
+      }
+      if (touchDragging && e.touches.length === 0) {
+        touchDragging = false
+        if (touchDragDist < 12 && e.changedTouches.length > 0) {
+          const t = e.changedTouches[0]
+          triggerPropAction(intersectProps(t.clientX, t.clientY))
         }
       }
     }
@@ -543,7 +658,7 @@ export function Workbench3D({
       }
       e.preventDefault()
       const step = -Math.sign(e.deltaY) * 0.38
-      targetZoom = THREE.MathUtils.clamp(targetZoom + step, -3.8, 1.05)
+      targetZoom = THREE.MathUtils.clamp(targetZoom + step, -4.5, 2.2)
     }
 
     const domEl = renderer.domElement
@@ -551,6 +666,9 @@ export function Workbench3D({
     window.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('pointermove', onPointerMove)
     window.addEventListener('pointerup', onPointerUp)
+    window.addEventListener('touchstart', onTouchStart, { passive: false })
+    window.addEventListener('touchmove', onTouchMove, { passive: false })
+    window.addEventListener('touchend', onTouchEnd)
 
     const resizeObserver = new ResizeObserver(() => {
       if (!webglContainer) return
@@ -629,14 +747,17 @@ export function Workbench3D({
       currentZoom = THREE.MathUtils.lerp(currentZoom, targetZoom, damp)
 
       const halfTan = Math.tan(THREE.MathUtils.degToRad(21))
-      const fitV = 0.85 / halfTan
-      const fitH = 1.24 / (halfTan * Math.max(camera.aspect, 0.75))
+      const safeAspect = Math.max(camera.aspect, 0.34)
+      const fitV = 0.90 / halfTan
+      const fitH = 1.24 / (halfTan * safeAspect)
       const baseDist = Math.max(2.15, fitV, fitH)
-      const dist = THREE.MathUtils.clamp(baseDist - currentZoom, 1.28, 6.2)
+      const dist = THREE.MathUtils.clamp(baseDist - currentZoom, 1.2, 10.5)
 
+      const activeLook =
+        camera.aspect < 0.85 ? new THREE.Vector3(0, 0.62, -0.62) : lookTarget
       const orbitTarget = lidClosedRef.current
         ? new THREE.Vector3(0, 0.12, -0.02)
-        : lookTarget
+        : activeLook
       currentLookAt.lerp(orbitTarget, dampFast)
 
       const camX = currentLookAt.x + Math.sin(currentYaw) * dist
@@ -661,6 +782,9 @@ export function Workbench3D({
       window.removeEventListener('wheel', onWheel)
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerup', onPointerUp)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('touchend', onTouchEnd)
       gridGeo.dispose()
       gridMat.dispose()
       coreMat.dispose()
@@ -675,16 +799,23 @@ export function Workbench3D({
   }, [])
 
   return (
-    <div className="fixed inset-0 h-screen w-screen overflow-hidden bg-[#050911]">
+    <div
+      className="fixed inset-0 h-screen w-screen overflow-hidden bg-[#050911]"
+      style={{ touchAction: 'none' }}
+    >
       {/* WebGL 3D World */}
-      <div ref={webglMountRef} className="absolute inset-0 z-0 h-full w-full" />
+      <div
+        ref={webglMountRef}
+        className="absolute inset-0 z-0 h-full w-full"
+        style={{ touchAction: 'none' }}
+      />
 
       {/* Synchronized CSS3D Interactive Laptop Screen */}
       <div ref={cssMountRef} className="pointer-events-none absolute inset-0 z-10 h-full w-full">
         <div
           ref={screenDomRef}
           className="laptop-screen-root overflow-hidden rounded-md shadow-inner"
-          style={{ width: '1120px', height: '700px', pointerEvents: 'auto' }}
+          style={{ width: '1120px', height: '700px', pointerEvents: 'auto', touchAction: 'pan-y' }}
         >
           {children}
         </div>
@@ -697,12 +828,28 @@ export function Workbench3D({
         </div>
       ) : null}
 
-      {/* Minimal Bottom Legend (no intrusive boxes) */}
+      {/* Minimal Bottom Legend & Tactile Zoom Controls (great on desktop + mobile) */}
       <div className="pointer-events-none fixed inset-x-4 bottom-3 z-20 flex flex-wrap items-center justify-between gap-2">
         <span className="hidden rounded-md border border-white/10 bg-[#070c14]/75 px-2.5 py-1 font-mono text-[10px] tracking-wider text-slate-300 backdrop-blur-md md:inline-block">
           {labels.dragHint}
         </span>
-        <div className="pointer-events-auto flex items-center gap-2 ml-auto">
+        <div className="pointer-events-auto ml-auto flex items-center gap-1.5">
+          <button
+            type="button"
+            aria-label="Zoom out"
+            onClick={() => adjustZoomRef.current(-0.7)}
+            className="rounded-md border border-white/15 bg-[#070c14]/80 px-2.5 py-1 font-mono text-xs font-bold text-slate-200 backdrop-blur-md transition-colors hover:border-sky-400/40 hover:text-sky-200"
+          >
+            −
+          </button>
+          <button
+            type="button"
+            aria-label="Zoom in"
+            onClick={() => adjustZoomRef.current(0.7)}
+            className="rounded-md border border-white/15 bg-[#070c14]/80 px-2.5 py-1 font-mono text-xs font-bold text-slate-200 backdrop-blur-md transition-colors hover:border-sky-400/40 hover:text-sky-200"
+          >
+            +
+          </button>
           <button
             type="button"
             onClick={onToggleLid}
