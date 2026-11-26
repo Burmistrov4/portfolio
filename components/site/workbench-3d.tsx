@@ -45,7 +45,7 @@ const SECTION_WAYPOINTS: Record<
   SpatialSection,
   { pos: [number, number, number]; look: [number, number, number] }
 > = {
-  inicio: { pos: [2.35, 2.08, 5.45], look: [-1.25, 0.95, 0] },
+  inicio: { pos: [1.52, 1.56, 3.45], look: [-0.88, 1.15, -0.22] },
   'sobre-mi': { pos: [-2.4, 1.7, 3.0], look: [-1.1, 1.0, -0.1] },
   stack: { pos: [2.7, 1.75, 2.8], look: [1.1, 1.08, -0.1] },
   proyectos: { pos: [0, 1.38, 2.95], look: [0, 1.2, -0.35] },
@@ -454,7 +454,7 @@ export function Workbench3D({
       screenTexture.needsUpdate = true
     }
 
-    // Orbit drag & Raycasting state
+    // Orbit drag, mouse-wheel zoom & Raycasting state
     let isDragging = false
     let dragDistance = 0
     let prevX = 0
@@ -463,6 +463,10 @@ export function Workbench3D({
     let targetPitch = 0
     let currentYaw = 0
     let currentPitch = 0
+    let targetZoom = 0
+    let currentZoom = 0
+    let prevSection = sectionRef.current
+    let prevFocus = focusRef.current
 
     const raycaster = new THREE.Raycaster()
     const pointer = new THREE.Vector2()
@@ -527,8 +531,17 @@ export function Workbench3D({
       }
     }
 
+    const onWheel = (e: WheelEvent) => {
+      if (sectionRef.current !== 'inicio') return
+      e.preventDefault()
+      // Scroll up (<0) moves camera closer (+zoom), scroll down (>0) moves farther (-zoom)
+      const step = -Math.sign(e.deltaY) * 0.35
+      targetZoom = THREE.MathUtils.clamp(targetZoom + step, -2.2, 1.75)
+    }
+
     const domEl = renderer.domElement
     domEl.addEventListener('pointerdown', onPointerDown)
+    domEl.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('pointermove', onPointerMove)
     window.addEventListener('pointerup', onPointerUp)
 
@@ -596,8 +609,15 @@ export function Workbench3D({
         lastScreenDraw = now
       }
 
+      if (sectionRef.current !== prevSection || focusRef.current !== prevFocus) {
+        targetZoom = 0
+        prevSection = sectionRef.current
+        prevFocus = focusRef.current
+      }
+
       currentYaw = THREE.MathUtils.lerp(currentYaw, targetYaw, 0.08)
       currentPitch = THREE.MathUtils.lerp(currentPitch, targetPitch, 0.08)
+      currentZoom = THREE.MathUtils.lerp(currentZoom, targetZoom, 0.09)
 
       if (focusRef.current) {
         // Aspect-safe framing so the entire monitor fits comfortably with zero cropping
@@ -605,14 +625,17 @@ export function Workbench3D({
         const fitDist = Math.max(2.3, 1.45 / (halfTan * Math.min(camera.aspect, 1.75)))
         desiredPos.set(0.0, 1.32, -0.35 + fitDist)
         desiredLook.set(0.0, 1.24, -0.35)
+        desiredPos.z = THREE.MathUtils.clamp(desiredPos.z - currentZoom * 0.45, 1.3, 4.2)
       } else {
         const wp = SECTION_WAYPOINTS[sectionRef.current]
         desiredPos.set(...wp.pos)
         desiredLook.set(...wp.look)
         if (sectionRef.current === 'inicio') {
-          desiredPos.x += Math.sin(currentYaw) * 1.8
-          desiredPos.z += (Math.cos(currentYaw) - 1) * 1.1
-          desiredPos.y = THREE.MathUtils.clamp(wp.pos[1] + currentPitch * 1.8, 1.35, 3.4)
+          desiredPos.x += Math.sin(currentYaw) * 1.6
+          desiredPos.z += (Math.cos(currentYaw) - 1) * 0.9
+          desiredPos.y = THREE.MathUtils.clamp(wp.pos[1] + currentPitch * 1.5, 1.25, 3.3)
+          const zoomVec = new THREE.Vector3().subVectors(desiredLook, desiredPos).normalize()
+          desiredPos.addScaledVector(zoomVec, currentZoom)
         }
       }
 
@@ -629,6 +652,7 @@ export function Workbench3D({
       cancelAnimationFrame(rafId)
       resizeObserver.disconnect()
       domEl.removeEventListener('pointerdown', onPointerDown)
+      domEl.removeEventListener('wheel', onWheel)
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerup', onPointerUp)
       screenTexture.dispose()

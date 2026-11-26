@@ -20,28 +20,24 @@ function TechChip({ label }: { label: string }) {
 }
 
 /**
- * @description Filterable project grid prioritizing flagship engineering systems over 2025 academic exercises.
+ * @description Filterable project grid displaying all projects by default with flagship systems ordered first.
  */
 export function ProjectsExplorer({ projects }: ProjectsExplorerProps) {
   const [selectedTech, setSelectedTech] = useState<string | null>(null)
-  const [showLegacy, setShowLegacy] = useState(false)
+  const [onlyFeatured, setOnlyFeatured] = useState(false)
   const { t } = usePortfolio()
 
-  const { flagship, legacy } = useMemo(() => {
-    const ordered = [...projects].sort((a, b) => {
+  const sorted = useMemo(() => {
+    return [...projects].sort((a, b) => {
       const fa = matchDetail(a.title)?.featured ? 0 : 1
       const fb = matchDetail(b.title)?.featured ? 0 : 1
       return fa - fb
     })
-    return {
-      flagship: ordered.filter((p) => !matchDetail(p.title)?.legacy),
-      legacy: ordered.filter((p) => matchDetail(p.title)?.legacy),
-    }
   }, [projects])
 
   const pool = useMemo(
-    () => (showLegacy ? [...flagship, ...legacy] : flagship),
-    [showLegacy, flagship, legacy]
+    () => (onlyFeatured ? sorted.filter((p) => matchDetail(p.title)?.featured) : sorted),
+    [onlyFeatured, sorted]
   )
 
   const allTech = useMemo(() => {
@@ -86,18 +82,20 @@ export function ProjectsExplorer({ projects }: ProjectsExplorerProps) {
           ))}
         </div>
 
-        {legacy.length > 0 ? (
-          <button
-            type="button"
-            onClick={() => {
-              setShowLegacy((prev) => !prev)
-              setSelectedTech(null)
-            }}
-            className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-[11px] text-slate-400 transition-colors hover:border-white/25 hover:text-slate-200"
-          >
-            {showLegacy ? t.projects.hideLegacy : t.projects.showLegacy} ({legacy.length})
-          </button>
-        ) : null}
+        <button
+          type="button"
+          onClick={() => {
+            setOnlyFeatured((prev) => !prev)
+            setSelectedTech(null)
+          }}
+          className={`rounded-md border px-3 py-1.5 font-mono text-[11px] transition-colors ${
+            onlyFeatured
+              ? 'border-sky-400/50 bg-sky-500/15 text-sky-300'
+              : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/25 hover:text-slate-200'
+          }`}
+        >
+          {onlyFeatured ? t.projects.showAll : t.projects.onlyFeatured}
+        </button>
       </div>
 
       {visible.length === 0 ? (

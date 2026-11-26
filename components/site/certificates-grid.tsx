@@ -10,33 +10,38 @@ interface CertificatesGridProps {
 }
 
 /**
- * @description Curated certificates grid prioritizing IT/Software certifications and hiding placeholder text.
+ * @description Certificates grid displaying all certificates by default (technical first) with optional IT filter.
  */
 export function CertificatesGrid({ certificates }: CertificatesGridProps) {
-  const [showOther, setShowOther] = useState(false)
+  const [onlyTech, setOnlyTech] = useState(false)
   const { t } = usePortfolio()
 
   if (certificates.length === 0) return null
 
-  const enriched = certificates.map((cert) => ({
-    cert,
-    ...curateCertificate(cert),
-  }))
+  const enriched = certificates
+    .map((cert) => ({
+      cert,
+      ...curateCertificate(cert),
+    }))
+    .sort((a, b) => (a.isTechnical === b.isTechnical ? 0 : a.isTechnical ? -1 : 1))
 
-  const technical = enriched.filter((c) => c.isTechnical)
-  const complementary = enriched.filter((c) => !c.isTechnical)
-  const visible = showOther ? [...technical, ...complementary] : technical
+  const hasComplementary = enriched.some((c) => !c.isTechnical)
+  const visible = onlyTech ? enriched.filter((c) => c.isTechnical) : enriched
 
   return (
     <div>
-      {complementary.length > 0 ? (
+      {hasComplementary ? (
         <div className="mb-6 flex justify-end">
           <button
             type="button"
-            onClick={() => setShowOther((prev) => !prev)}
-            className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-[11px] text-slate-400 transition-colors hover:border-white/25 hover:text-slate-200"
+            onClick={() => setOnlyTech((prev) => !prev)}
+            className={`rounded-md border px-3 py-1.5 font-mono text-[11px] transition-colors ${
+              onlyTech
+                ? 'border-sky-400/50 bg-sky-500/15 text-sky-300'
+                : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/25 hover:text-slate-200'
+            }`}
           >
-            {showOther ? t.certificates.hideOther : t.certificates.showOther} ({complementary.length})
+            {onlyTech ? t.certificates.showAll : t.certificates.onlyTech}
           </button>
         </div>
       ) : null}

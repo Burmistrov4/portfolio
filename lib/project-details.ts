@@ -119,6 +119,35 @@ export const PROJECT_DETAILS: ProjectDetail[] = [
     fallbackTech: ['Python', 'Flask', 'SQLite3', 'Jinja2', 'scrypt', 'CSRF'],
   },
   {
+    key: 'adrialga',
+    featured: true,
+    year: '2026',
+    role: 'Desarrollo full-stack · proyecto académico · Análisis de Sistemas II',
+    tagline: 'Sistema comercial integral para Ferretería Adrialga C.A. (POS, caja, inventario y tasa BCV)',
+    problem:
+      'Una ferretería con múltiples proveedores, variantes de productos y precios en divisas necesita controlar ventas en caja, márgenes reales, arqueos y tasa diaria del BCV sin depender de hojas de cálculo dispersas.',
+    features: [
+      'Punto de venta (POS) con carrito en tiempo real, cálculo dual USD/VES (tasa BCV) e IVA.',
+      'Panel de control con métricas de ventas, margen bruto estimado, ticket promedio y valor de inventario.',
+      'Módulos de inventario, facturas, compras, proveedores, caja con arqueo y exportación CSV / PDF.',
+      'Sincronización de eventos en vivo con Socket.IO y microservicio de apoyo en Python/FastAPI.',
+    ],
+    stackNotes: [
+      { tech: 'Flutter / Dart', note: 'interfaz única multiplataforma con fl_chart, generación de PDFs e impresión directa.' },
+      { tech: 'Node.js + Express + Prisma', note: 'API transaccional con precisión decimal (decimal.js), autenticación y arqueo de caja.' },
+      { tech: 'MySQL', note: 'esquema relacional estricto para productos, variantes, facturas, compras y movimientos de caja.' },
+      { tech: 'Python / FastAPI', note: 'microservicio auxiliar para importación de catálogos y consulta automatizada de tasa.' },
+    ],
+    contribution:
+      'Diseño del modelo de datos, desarrollo del frontend Flutter, endpoints Express/Prisma, lógica de caja/facturación y microservicio auxiliar.',
+    evidence: [
+      'Repositorio público del frontend y arquitectura backend documentada.',
+      'Demo interactiva publicada en GitHub Pages (enlace arriba).',
+    ],
+    diagramPath: '/diagrams/adrialga.svg',
+    fallbackTech: ['Flutter', 'Dart', 'Node.js', 'Express', 'Prisma', 'MySQL', 'Python', 'FastAPI', 'Socket.IO'],
+  },
+  {
     key: 'boletos-cine',
     featured: false,
     legacy: true,
@@ -170,8 +199,9 @@ export function matchDetail(title: string): ProjectDetail | null {
   if (t.includes('inces')) return PROJECT_DETAILS[0]
   if (t.includes('cargo')) return PROJECT_DETAILS[1]
   if (t.includes('loan') || t.includes('prestamo')) return PROJECT_DETAILS[2]
-  if (t.includes('boleto') || t.includes('cine')) return PROJECT_DETAILS[3]
-  if (t.includes('calculadora') || t.includes('calculator')) return PROJECT_DETAILS[4]
+  if (t.includes('adrialga') || t.includes('ferreteria')) return PROJECT_DETAILS[3]
+  if (t.includes('boleto') || t.includes('cine')) return PROJECT_DETAILS[4]
+  if (t.includes('calculadora') || t.includes('calculator')) return PROJECT_DETAILS[5]
   return null
 }
 

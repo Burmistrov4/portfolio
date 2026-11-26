@@ -10,7 +10,6 @@ import { CertificatesGrid } from '@/components/site/certificates-grid'
 import { ContactSection } from '@/components/site/contact-section'
 import { SiteFooter } from '@/components/site/site-footer'
 import { usePortfolio } from '@/components/site/portfolio-context'
-import { curateCertificate, matchDetail } from '@/lib/project-details'
 import { CONTACT, type Certificate, type Profile, type Project } from '@/lib/portfolio-types'
 import type { SpatialSection } from '@/components/site/workbench-3d'
 
@@ -110,10 +109,8 @@ export function HomeView({ profile, projects, certificates }: HomeViewProps) {
   const [activeSection, setActiveSection] = useState<SpatialSection>('inicio')
   const [monitorFocused, setMonitorFocused] = useState(false)
 
-  const flagshipCount = projects.filter((p) => !matchDetail(p.title)?.legacy).length
-  const techCertCount = certificates.filter((c) => curateCertificate(c).isTechnical).length
-  const displayProjectCount = flagshipCount || projects.length
-  const displayCertCount = techCertCount || certificates.length
+  const displayProjectCount = projects.length
+  const displayCertCount = certificates.length
 
   const name = profile?.full_name ?? 'Lorenzo Roca'
   const photo = profile?.profile_image_url
