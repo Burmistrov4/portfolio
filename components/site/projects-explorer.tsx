@@ -53,33 +53,35 @@ export function ProjectsExplorer({ projects }: ProjectsExplorerProps) {
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex max-w-full flex-nowrap gap-2 overflow-x-auto pb-1.5 sm:flex-wrap sm:overflow-visible sm:pb-0">
-          <button
-            type="button"
-            onClick={() => setSelectedTech(null)}
-            className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-              selectedTech === null
-                ? 'bg-sky-500 text-slate-950'
-                : 'border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
-            }`}
-          >
-            {t.projects.all}
-          </button>
-          {allTech.map((tech) => (
+      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="w-full min-w-0 overflow-x-auto pb-1.5 sm:flex-1 sm:overflow-visible sm:pb-0">
+          <div className="flex w-max gap-2 sm:w-auto sm:flex-wrap">
             <button
-              key={tech}
               type="button"
-              onClick={() => setSelectedTech(selectedTech === tech ? null : tech)}
+              onClick={() => setSelectedTech(null)}
               className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-                selectedTech === tech
+                selectedTech === null
                   ? 'bg-sky-500 text-slate-950'
                   : 'border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
               }`}
             >
-              {tech}
+              {t.projects.all}
             </button>
-          ))}
+            {allTech.map((tech) => (
+              <button
+                key={tech}
+                type="button"
+                onClick={() => setSelectedTech(selectedTech === tech ? null : tech)}
+                className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                  selectedTech === tech
+                    ? 'bg-sky-500 text-slate-950'
+                    : 'border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
+                }`}
+              >
+                {tech}
+              </button>
+            ))}
+          </div>
         </div>
 
         <button
@@ -88,7 +90,7 @@ export function ProjectsExplorer({ projects }: ProjectsExplorerProps) {
             setOnlyFeatured((prev) => !prev)
             setSelectedTech(null)
           }}
-          className={`rounded-md border px-3 py-1.5 font-mono text-[11px] transition-colors ${
+          className={`self-start shrink-0 rounded-md border px-3 py-1.5 font-mono text-[11px] transition-colors ${
             onlyFeatured
               ? 'border-sky-400/50 bg-sky-500/15 text-sky-300'
               : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/25 hover:text-slate-200'

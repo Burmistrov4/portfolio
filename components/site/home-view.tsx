@@ -218,7 +218,7 @@ export function HomeView({ profile, projects, certificates }: HomeViewProps) {
 
   // Classic 2D Vertical-Scrolling Portfolio
   return (
-    <div className="min-h-screen bg-[#0A0E14] text-slate-200">
+    <div className="min-h-screen overflow-x-hidden bg-[#0A0E14] text-slate-200">
       <SiteNav cvUrl={profile?.cv_pdf_url ?? null} />
 
       <Hero

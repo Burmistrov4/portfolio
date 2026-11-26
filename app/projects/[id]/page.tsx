@@ -41,7 +41,7 @@ export default async function ProjectPage({ params }: PageProps) {
   const images = project.file_paths ?? []
 
   return (
-    <div className="min-h-screen bg-[#0A0E14] text-slate-200">
+    <div className="min-h-screen overflow-x-hidden bg-[#0A0E14] text-slate-200">
       <SiteNav cvUrl={profile?.cv_pdf_url ?? null} />
 
       <article className="mx-auto max-w-4xl px-5 py-12">

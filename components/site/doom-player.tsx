@@ -63,6 +63,17 @@ const DEFAULT_TOUCH_PREFS: TouchPrefs = {
   padStyle: 'cross',
 }
 
+let cachedDoomScriptPromise: Promise<string> | null = null
+function loadDoomEngineScript(): Promise<string> {
+  if (!cachedDoomScriptPromise) {
+    cachedDoomScriptPromise = fetch('/doom/doom.js').then((res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status} loading doom.js`)
+      return res.text()
+    })
+  }
+  return cachedDoomScriptPromise
+}
+
 const SCREEN_W = 320
 const SCREEN_H = 200
 
@@ -379,12 +390,18 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
     }
 
     moduleRef.current = doomMod
-    ;(window as unknown as { Module?: DoomModule }).Module = doomMod
-
-    const script = document.createElement('script')
-    script.src = '/doom/doom.js'
-    script.async = true
-    document.body.appendChild(script)
+    let cancelled = false
+    loadDoomEngineScript()
+      .then((code) => {
+        if (cancelled) return
+        const bootEngine = new Function('Module', code) as (mod: DoomModule) => void
+        bootEngine(doomMod)
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setErrorMsg(err instanceof Error ? err.message : 'Error loading DOOM engine')
+        }
+      })
 
     const onKey = (e: KeyboardEvent) => {
       if (!runningRef.current || !visibleRef.current) return
@@ -429,6 +446,7 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
     document.addEventListener('pointerlockchange', onPointerLockChange)
 
     return () => {
+      cancelled = true
       window.clearInterval(syncInterval)
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('keyup', onKey)
@@ -441,7 +459,6 @@ export function DoomPlayer({ visible, locale, onClose }: DoomPlayerProps) {
         audioRef.current.close().catch(() => {})
         audioRef.current = null
       }
-      if (script.parentNode) script.parentNode.removeChild(script)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
